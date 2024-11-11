@@ -1,7 +1,8 @@
-package com.example.BankSystem.model;
+    package com.example.BankSystem.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -14,8 +15,10 @@ public class BankAccount {
     private int PAN;
     @Column(name="SECURITY_CODE", nullable=false)
     private int securityCode;
-    @Column(name="EXPIRE_DATE", nullable=false)
-    private Date expireDate;
+    @Column(name="CARD_HOLDER_NAME", nullable=false)
+    private String cardHolderName;
+    @Column(name="EXPIRATION_DATE", nullable=false)
+    private LocalDate expirationDate;
     @Column(name="AVAILABLE_FUNDS", nullable=false)
     private int availableFunds;
 
@@ -41,12 +44,12 @@ public class BankAccount {
         this.securityCode = securityCode;
     }
 
-    public Date getExpireDate() {
-        return expireDate;
+    public LocalDate getExpirationDate() {
+        return expirationDate;
     }
 
-    public void setExpireDate(Date expireDate) {
-        this.expireDate = expireDate;
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public int getAvailableFunds() {
@@ -55,5 +58,13 @@ public class BankAccount {
 
     public void setAvailableFunds(int availableFunds) {
         this.availableFunds = availableFunds;
+    }
+
+    public String getCardHolderName() {
+        return cardHolderName;
+    }
+
+    public void setCardHolderName(String cardHolderName) {
+        this.cardHolderName = cardHolderName;
     }
 }
