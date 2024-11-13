@@ -1,9 +1,8 @@
-    package com.example.BankSystem.model;
+package com.example.BankSystem.model;
 
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 public class BankAccount {
@@ -21,6 +20,8 @@ public class BankAccount {
     private LocalDate expirationDate;
     @Column(name="AVAILABLE_FUNDS", nullable=false)
     private int availableFunds;
+    @Column(name="MERCHANT_ID", nullable=true)
+    private String merchantId;
 
     public BankAccount(){}
 
@@ -66,5 +67,13 @@ public class BankAccount {
 
     public void setCardHolderName(String cardHolderName) {
         this.cardHolderName = cardHolderName;
+    }
+
+    public String getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(String merchantId) {
+        this.merchantId = merchantId;
     }
 }

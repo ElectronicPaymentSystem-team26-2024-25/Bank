@@ -3,7 +3,7 @@ package com.example.BankSystem.dto;
 import java.time.LocalDateTime;
 
 public class CardPaymentRequest {
-    private int merchantId;
+    private String merchantId;
     private String merchantPassword;
     private int amount;
     private int merchantOrderId;
@@ -14,11 +14,11 @@ public class CardPaymentRequest {
 
     public CardPaymentRequest(){}
 
-    public int getMerchantId() {
+    public String getMerchantId() {
         return merchantId;
     }
 
-    public void setMerchantId(int merchantId) {
+    public void setMerchantId(String merchantId) {
         this.merchantId = merchantId;
     }
 

@@ -12,15 +12,20 @@ public class Payment {
     int acquirerOrderId;
     @Column(name = "ISSUER_ORDER_ID", nullable = false)
     int issuerOrderId;
+    @Column(name = "MERCHANT_ORDER_ID", nullable = false)
+    int merchantOrderId;
     @Column(name = "AMOUNT", nullable = false)
     int amount;
-
+    @Column(name = "STATUS", nullable = false)
+    PaymentStatus status;
     public Payment (){}
 
-    public Payment(int acquirerOrderId, int issuerOrderId, int amount) {
+    public Payment(int acquirerOrderId, int issuerOrderId, int merchantOrderId, int amount, PaymentStatus status) {
         this.acquirerOrderId = acquirerOrderId;
         this.issuerOrderId = issuerOrderId;
+        this.merchantOrderId = merchantOrderId;
         this.amount = amount;
+        this.status = status;
     }
 
     public int getPaymentId() {
@@ -43,11 +48,27 @@ public class Payment {
         this.issuerOrderId = issuerOrderId;
     }
 
+    public int getMerchantOrderId() {
+        return merchantOrderId;
+    }
+
+    public void setMerchantOrderId(int merchantOrderId) {
+        this.merchantOrderId = merchantOrderId;
+    }
+
     public int getAmount() {
         return amount;
     }
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public PaymentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PaymentStatus status) {
+        this.status = status;
     }
 }
