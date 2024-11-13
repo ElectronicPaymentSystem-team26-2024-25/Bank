@@ -33,9 +33,11 @@ export class PaymentFormComponent {
     this.service.executePayment(this.paymentRequest).subscribe({
       next: (response) => {
         console.log(response);
+        alert('success')
       },
       error: (error) => {
-        console.log(error);
+        //znaci ovde umesto ispisa u alertu samo mogu da posaljem onaj error fail url i redirektujem ga ka tamo. Isto i u slucaju da je uspeo samo success url
+        alert(error.error);
       }
     });
   }
