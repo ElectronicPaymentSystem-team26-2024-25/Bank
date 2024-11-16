@@ -28,12 +28,19 @@ public class CardPaymentController {
     @PutMapping (consumes = "application/json", path = "/executepayment")
     public ResponseEntity<Object> executePayment(@RequestBody PaymentExecutionRequest paymentExecutionRequest)
     {
-        if(!cardPaymentService.isPaymentInProgress(paymentExecutionRequest.getPaymentId()))
-            return new ResponseEntity<>("Invalid request",HttpStatus.BAD_REQUEST);
-        if(!cardPaymentService.isCardDataValid(paymentExecutionRequest))
-            return new ResponseEntity<>("Invalid request: given bank card data is not valid.",HttpStatus.BAD_REQUEST);
-        if(!cardPaymentService.hasSufficientFunds(paymentExecutionRequest.getPAN(), paymentExecutionRequest.getPaymentId()))
-            return new ResponseEntity<>("Invalid request: insufficient funds",HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(cardPaymentService.savePayment(paymentExecutionRequest), HttpStatus.OK);
+        //TODO: proveriti pre ovoga da li je struktura PAN-a dobra
+        if(cardPaymentService.isAccountInCurrentBank(paymentExecutionRequest.getPAN())){
+            if(!cardPaymentService.isPaymentInProgress(paymentExecutionRequest.getPaymentId()))
+                return new ResponseEntity<>("Invalid request",HttpStatus.BAD_REQUEST);
+            if(!cardPaymentService.isCardDataValid(paymentExecutionRequest))
+                return new ResponseEntity<>("Invalid request: given bank card data is not valid.",HttpStatus.BAD_REQUEST);
+            if(!cardPaymentService.hasSufficientFunds(paymentExecutionRequest.getPAN(), paymentExecutionRequest.getPaymentId()))
+                return new ResponseEntity<>("Invalid request: insufficient funds",HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(cardPaymentService.savePayment(paymentExecutionRequest), HttpStatus.OK);
+        }
+        else{
+            //pozovi drugu banku
+
+        }
     }
 }

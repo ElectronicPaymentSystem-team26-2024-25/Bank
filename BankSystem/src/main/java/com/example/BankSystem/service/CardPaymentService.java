@@ -83,6 +83,16 @@ public class CardPaymentService {
         Payment payment = paymentRepository.getReferenceById(paymentId);
         return payment.getStatus() == PaymentStatus.IN_PROGRESS;
     }
+
+    public boolean isAccountInCurrentBank(int pan){
+        String panStr = String.valueOf(pan);
+        String firstSixDigits = panStr.substring(0, 6);
+        //TODO: izvuci iz nekog fajla identifikator banke
+        if(firstSixDigits.equals("111111"))
+            return true;
+        else return false;
+    }
+
     //TODO: dodati transakcioni rezim rada
     public PaymentExecutionResponse savePayment(PaymentExecutionRequest paymentExecution){
         Payment payment = paymentRepository.getReferenceById(paymentExecution.getPaymentId());
