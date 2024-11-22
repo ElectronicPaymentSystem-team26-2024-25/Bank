@@ -4,6 +4,7 @@ import com.example.BankSystem.dto.CardPaymentRequest;
 import com.example.BankSystem.dto.CardPaymentRequestResponse;
 import com.example.BankSystem.dto.PaymentExecutionRequest;
 import com.example.BankSystem.dto.PaymentExecutionResponse;
+import com.example.BankSystem.model.PaymentStatus;
 import com.example.BankSystem.service.CardPaymentService;
 import com.example.BankSystem.service.PccCommunicationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ public class CardPaymentController {
     CardPaymentService cardPaymentService;
     @Autowired
     PccCommunicationService pccCommunicationService;
+
     @PostMapping (consumes = "application/json", path = "/cardpaymentform")
     public ResponseEntity<CardPaymentRequestResponse> getCardPaymentRequestResponse(@RequestBody CardPaymentRequest cardPaymentRequest)
     {
@@ -28,18 +30,21 @@ public class CardPaymentController {
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    //TODO: resiti neuspesne slucajeve na drugi nacin (fail, error url...)
+
     @PutMapping (consumes = "application/json", path = "/executepayment")
     public ResponseEntity<Object> executePayment(@RequestBody PaymentExecutionRequest paymentExecutionRequest)
     {
         //TODO: proveriti pre ovoga da li je struktura PAN-a dobra
+        if(!cardPaymentService.isPaymentExecutable(paymentExecutionRequest.getPaymentId()))
+            return new ResponseEntity<>("Invalid request",HttpStatus.BAD_REQUEST);
         if(cardPaymentService.isAccountInCurrentBank(paymentExecutionRequest.getPAN())){
-            if(!cardPaymentService.isPaymentInProgress(paymentExecutionRequest.getPaymentId()))
-                return new ResponseEntity<>("Invalid request",HttpStatus.BAD_REQUEST);
             if(!cardPaymentService.isCardDataValid(paymentExecutionRequest))
-                return new ResponseEntity<>("Invalid request: given bank card data is not valid.",HttpStatus.BAD_REQUEST);
+                // da li vratiti bad request 400 ili 200
+                return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, -1, PaymentStatus.ERROR,
+                        cardPaymentService.getPaymentUrl(PaymentStatus.ERROR, paymentExecutionRequest.getPaymentId()), "Card data invalid."),HttpStatus.OK);
             if(!cardPaymentService.hasSufficientFunds(paymentExecutionRequest.getPAN(), paymentExecutionRequest.getPaymentId()))
-                return new ResponseEntity<>("Invalid request: insufficient funds",HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, -1, PaymentStatus.FAIL,
+                        cardPaymentService.getPaymentUrl(PaymentStatus.FAIL, paymentExecutionRequest.getPaymentId()), "Insufficient funds on account."),HttpStatus.OK);
             return new ResponseEntity<>(cardPaymentService.savePayment(paymentExecutionRequest), HttpStatus.OK);
         }
         else{

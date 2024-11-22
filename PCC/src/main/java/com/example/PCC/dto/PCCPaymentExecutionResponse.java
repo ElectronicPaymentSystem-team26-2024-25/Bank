@@ -11,6 +11,7 @@ public class PCCPaymentExecutionResponse {
     private LocalDateTime issuerTimestamp;
     private PaymentStatus paymentStatus;
     private String issuerBank;
+    private String failReason;
     public PCCPaymentExecutionResponse(){}
 
     public int getAcquirerOrderId() {
@@ -59,5 +60,13 @@ public class PCCPaymentExecutionResponse {
 
     public void setIssuerBank(String issuerBank) {
         this.issuerBank = issuerBank;
+    }
+
+    public String getFailReason() {
+        return failReason;
+    }
+
+    public void setFailReason(String failReason) {
+        this.failReason = failReason;
     }
 }

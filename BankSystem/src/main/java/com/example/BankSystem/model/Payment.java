@@ -2,7 +2,6 @@ package com.example.BankSystem.model;
 
 import jakarta.persistence.*;
 
-//Da li moram dodati acquirer i issuer timestamp ovde
 @Entity
 public class Payment {
     @Id

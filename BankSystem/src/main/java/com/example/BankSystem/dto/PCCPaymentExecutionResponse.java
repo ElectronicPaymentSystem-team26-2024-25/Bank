@@ -11,16 +11,18 @@ public class PCCPaymentExecutionResponse {
     private LocalDateTime issuerTimestamp;
     private PaymentStatus paymentStatus;
     private String issuerBank;
+    private String failReason;
 
     public PCCPaymentExecutionResponse(){}
 
-    public PCCPaymentExecutionResponse(int acquirerOrderId, LocalDateTime acquirerTimestamp, int issuerOrderId, LocalDateTime issuerTimestamp, PaymentStatus paymentStatus, String issuerBank) {
+    public PCCPaymentExecutionResponse(int acquirerOrderId, LocalDateTime acquirerTimestamp, int issuerOrderId, LocalDateTime issuerTimestamp, PaymentStatus paymentStatus, String issuerBank, String failReason) {
         this.acquirerOrderId = acquirerOrderId;
         this.acquirerTimestamp = acquirerTimestamp;
         this.issuerOrderId = issuerOrderId;
         this.issuerTimestamp = issuerTimestamp;
         this.paymentStatus = paymentStatus;
         this.issuerBank = issuerBank;
+        this.failReason = failReason;
     }
 
     public int getAcquirerOrderId() {
@@ -69,5 +71,13 @@ public class PCCPaymentExecutionResponse {
 
     public void setIssuerBank(String issuerBank) {
         this.issuerBank = issuerBank;
+    }
+
+    public String getFailReason() {
+        return failReason;
+    }
+
+    public void setFailReason(String failReason) {
+        this.failReason = failReason;
     }
 }

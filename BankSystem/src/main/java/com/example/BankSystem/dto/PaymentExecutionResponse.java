@@ -11,16 +11,18 @@ public class PaymentExecutionResponse {
     private int paymentId;
     private PaymentStatus status;
     private String redirectUrl;
+    private String failReason;
 
     public PaymentExecutionResponse(){}
 
-    public PaymentExecutionResponse(int merchantOrderId, int acquirerOrderId, LocalDateTime acquirerTimestamp, int paymentId, PaymentStatus status, String redirectUrl) {
+    public PaymentExecutionResponse(int merchantOrderId, int acquirerOrderId, LocalDateTime acquirerTimestamp, int paymentId, PaymentStatus status, String redirectUrl, String failReason) {
         this.merchantOrderId = merchantOrderId;
         this.acquirerOrderId = acquirerOrderId;
         this.acquirerTimestamp = acquirerTimestamp;
         this.paymentId = paymentId;
         this.status = status;
         this.redirectUrl = redirectUrl;
+        this.failReason = failReason;
     }
 
     public int getMerchantOrderId() {
@@ -69,5 +71,13 @@ public class PaymentExecutionResponse {
 
     public void setRedirectUrl(String redirectUrl) {
         this.redirectUrl = redirectUrl;
+    }
+
+    public String getFailReason() {
+        return failReason;
+    }
+
+    public void setFailReason(String failReason) {
+        this.failReason = failReason;
     }
 }

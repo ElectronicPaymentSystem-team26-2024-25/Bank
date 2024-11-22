@@ -11,6 +11,12 @@ public class PaymentExecutionRequest {
 
     public PaymentExecutionRequest(){}
 
+    public PaymentExecutionRequest(PCCPaymentExecutionRequest pccRequest){
+        this.pan = pccRequest.getPAN();
+        this.securityCode = pccRequest.getSecurityCode();
+        this.cardHolderName = pccRequest.getCardHolderName();
+        this.expirationDate = pccRequest.getExpirationDate();
+    }
     public String getPAN() {
         return pan;
     }

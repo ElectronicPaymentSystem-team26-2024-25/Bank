@@ -4,9 +4,12 @@ import com.example.BankSystem.dto.*;
 import com.example.BankSystem.model.*;
 import com.example.BankSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CardPaymentService {
@@ -20,10 +23,17 @@ public class CardPaymentService {
     IssuerOrderRepository issuerOrderRepository;
     @Autowired
     MerchantOrderRepository merchantOrderRepository;
+    @Autowired
+    PaymentUrlsRepository paymentUrlsRepository;
+    @Value("${custom.property.bankName}")
+    String bankName;
+    @Value("${custom.property.bankId}")
+    String bankId;
     public CardPaymentRequestResponse getCardPaymentForm(CardPaymentRequest cardPaymentRequest){
         if(isCardPaymentRequestValid(cardPaymentRequest)){
             saveMerchantOrder(cardPaymentRequest);
             int paymentId = getNewCardPaymentId(cardPaymentRequest.getAmount(), cardPaymentRequest.getMerchantOrderId());
+            savePaymentUrls(cardPaymentRequest, paymentId);
             return new CardPaymentRequestResponse(paymentId, getPaymentUrl(paymentId));
         }else{
             return new CardPaymentRequestResponse(-1, "");
@@ -39,11 +49,14 @@ public class CardPaymentService {
     }
 
     private int getNewCardPaymentId(int amount, int merchantOrderId){
-        Payment payment = new Payment(0, "banka1", 0, "banka2", amount, PaymentStatus.IN_PROGRESS, merchantOrderId);
+        Payment payment = new Payment(0, bankName, 0, "?", amount, PaymentStatus.IN_PROGRESS, merchantOrderId);
         payment = paymentRepository.save(payment);
         return payment.getPaymentId();
     }
-
+    private void savePaymentUrls(CardPaymentRequest cardPaymentRequest, int paymentId){
+        PaymentUrls paymentUrls = new PaymentUrls(paymentId, cardPaymentRequest.getSuccessUrl(), cardPaymentRequest.getFailedUrl(), cardPaymentRequest.getErrorUrl());
+        paymentUrlsRepository.save(paymentUrls);
+    }
     private void saveMerchantOrder(CardPaymentRequest cardPaymentRequest){
         MerchantOrder order = new MerchantOrder(cardPaymentRequest.getMerchantOrderId(), cardPaymentRequest.getMerchantTimestamp(), cardPaymentRequest.getMerchantId(), cardPaymentRequest.getAmount());
         merchantOrderRepository.save(order);
@@ -71,20 +84,24 @@ public class CardPaymentService {
         Payment payment = paymentRepository.getReferenceById(paymentId);
         if(account == null)
             return false;
-        if(account.getAvailableFunds() < payment.getAmount())
-            return false;
-        else
-            return true;
+        return account.getAvailableFunds() >= payment.getAmount();
     }
-    public boolean isPaymentInProgress(int paymentId){
+    public boolean hasSufficientFundsAtIssuer(String PAN, int amount){
+        BankAccount account = bankAccountRepository.findByPAN(PAN);
+        if(account == null)
+            return false;
+        return account.getAvailableFunds() >= amount;
+    }
+    public boolean isPaymentExecutable(int paymentId){
         Payment payment = paymentRepository.getReferenceById(paymentId);
-        return payment.getStatus() == PaymentStatus.IN_PROGRESS;
+        if(payment.getStatus() == PaymentStatus.SUCCESS)
+            return false;
+        return true;
     }
 
     public boolean isAccountInCurrentBank(String pan){
         String firstSixDigits = pan.substring(0, 6);
-        //TODO: izvuci iz nekog fajla identifikator banke
-        if(firstSixDigits.equals("111111"))
+        if(firstSixDigits.equals(bankId))
             return true;
         else return false;
     }
@@ -97,11 +114,12 @@ public class CardPaymentService {
         IssuerOrder issuerOrder = makeIssuerOrder(payment.getAmount(), paymentExecution.getPAN());
         payment.setAcquirerOrderId(acquirerOrder.getAcquirerOrderId());
         payment.setIssuerOrderId(issuerOrder.getIssuerOrderId());
+        payment.setIssuerBank(bankName);
         executePayment(merchantOrder.getMerchantId(), paymentExecution.getPAN(), payment.getAmount());
         payment.setStatus(PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
         return new PaymentExecutionResponse(0, acquirerOrder.getAcquirerOrderId(), acquirerOrder.getAcquirerTimestamp(),
-                paymentExecution.getPaymentId(), PaymentStatus.SUCCESS, "success url sa domenom PSP-a");
+                paymentExecution.getPaymentId(), PaymentStatus.SUCCESS, "success url sa domenom PSP-a", ".");
     }
 
     private AcquirerOrder makeAcquirerOrder(int amount, String merchantId){
@@ -134,7 +152,7 @@ public class CardPaymentService {
     }
 
     public PCCPaymentExecutionResponse savePaymentAtIssuer(PCCPaymentExecutionRequest paymentExecution){
-        Payment payment = new Payment(paymentExecution.getAcquirerOrderId(), paymentExecution.getAcquirerBank(), 0, "trenutna banka", paymentExecution.getAmount(), PaymentStatus.IN_PROGRESS, paymentExecution.getMerchantOrderId());
+        Payment payment = new Payment(paymentExecution.getAcquirerOrderId(), paymentExecution.getAcquirerBank(), 0, bankName, paymentExecution.getAmount(), PaymentStatus.IN_PROGRESS, paymentExecution.getMerchantOrderId());
         paymentRepository.save(payment);
         MerchantOrder merchantOrder = merchantOrderRepository.getReferenceById(payment.getMerchantOrderId());
         IssuerOrder issuerOrder = makeIssuerOrder(payment.getAmount(), paymentExecution.getPAN());
@@ -144,16 +162,14 @@ public class CardPaymentService {
         payment.setStatus(PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
         return new PCCPaymentExecutionResponse(paymentExecution.getAcquirerOrderId(), paymentExecution.getAcquirerOrderTimestamp(),
-                issuerOrder.getIssuerOrderId(), issuerOrder.getIssuerTimestamp(), payment.getStatus(), "trenutna banka");
-        //iscitati trenutnu banku iz konfiguracije
+                issuerOrder.getIssuerOrderId(), issuerOrder.getIssuerTimestamp(), payment.getStatus(), bankName, ".");
     }
 
     public void savePaymentAtAcquirer(PCCPaymentExecutionResponse pccPaymentExecutionResponse, int paymentId){
         Payment payment = paymentRepository.getReferenceById(paymentId);
         payment.setStatus(pccPaymentExecutionResponse.getPaymentStatus());
         payment.setAcquirerOrderId(pccPaymentExecutionResponse.getAcquirerOrderId());
-        //iscitati trenutnu banku iz konfiguracije
-        payment.setAcquirerBank("trenutna banka");
+        payment.setAcquirerBank(bankName);
         payment.setIssuerOrderId(pccPaymentExecutionResponse.getIssuerOrderId());
         payment.setIssuerBank(pccPaymentExecutionResponse.getIssuerBank());
         MerchantOrder merchantOrder = merchantOrderRepository.getReferenceById(payment.getMerchantOrderId());
@@ -161,5 +177,10 @@ public class CardPaymentService {
         addFunds(merchantAccount.getPAN(), payment.getAmount());
         paymentRepository.save(payment);
     }
-
+    public String getPaymentUrl(PaymentStatus status, int paymentId){
+        PaymentUrls paymentUrls = paymentUrlsRepository.findByPaymentId(paymentId);
+        if(status == PaymentStatus.SUCCESS) return paymentUrls.getSuccessUrl();
+        else if (status == PaymentStatus.ERROR) return paymentUrls.getErrorUrl();
+        else return paymentUrls.getFailUrl();
+    }
 }

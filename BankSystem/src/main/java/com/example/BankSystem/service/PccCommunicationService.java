@@ -45,7 +45,8 @@ public class PccCommunicationService {
             return null;
         PCCPaymentExecutionResponse responseBody = response.getBody();
         cardPaymentService.savePaymentAtAcquirer(responseBody, payment.getPaymentId());
-        return new PaymentExecutionResponse(payment.getMerchantOrderId(), responseBody.getAcquirerOrderId(), responseBody.getAcquirerTimestamp(), paymentExecutionRequest.getPaymentId(), responseBody.getPaymentStatus(), "neki url koji nemam za pcc");
+        return new PaymentExecutionResponse(payment.getMerchantOrderId(), responseBody.getAcquirerOrderId(), responseBody.getAcquirerTimestamp(),
+        paymentExecutionRequest.getPaymentId(), responseBody.getPaymentStatus(), cardPaymentService.getPaymentUrl(responseBody.getPaymentStatus(), payment.getPaymentId()), responseBody.getFailReason());
     }
 
     private AcquirerOrder generateAcquirerOrder(Payment payment){
