@@ -12,7 +12,9 @@ public class Bank {
     @Column(name = "PORT", nullable = false)
     int port;
 
-    public Bank(){}
+    public Bank(){
+        bankId = 0;
+    }
 
     public int getBankId() {
         return bankId;

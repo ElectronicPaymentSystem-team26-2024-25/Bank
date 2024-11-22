@@ -15,17 +15,14 @@ public class AcquirerOrder {
     LocalDateTime acquirerTimestamp;
     @Column(name = "ACCOUNT_ID", nullable = false)
     String accountId;
-    @Column(name = "ACQUIRER_BANK", nullable = false)
-    String bank;
     @Column(name = "AMOUNT", nullable = false)
     int amount;
 
     public AcquirerOrder(){}
 
-    public AcquirerOrder(LocalDateTime acquirerTimestamp, String accountId, String bank, int amount) {
+    public AcquirerOrder(LocalDateTime acquirerTimestamp, String accountId, int amount) {
         this.acquirerTimestamp = acquirerTimestamp;
         this.accountId = accountId;
-        this.bank = bank;
         this.amount = amount;
     }
 
@@ -47,14 +44,6 @@ public class AcquirerOrder {
 
     public void setAccountId(String accountId) {
         this.accountId = accountId;
-    }
-
-    public String getBank() {
-        return bank;
-    }
-
-    public void setBank(String bank) {
-        this.bank = bank;
     }
 
     public int getAmount() {

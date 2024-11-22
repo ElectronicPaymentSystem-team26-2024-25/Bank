@@ -14,17 +14,14 @@ public class IssuerOrder {
     LocalDateTime issuerTimestamp;
     @Column(name = "ACCOUNT_ID", nullable = false)
     String accountId;
-    @Column(name = "ISSUER_BANK", nullable = false)
-    String bank;
     @Column(name = "AMOUNT", nullable = false)
     int amount;
 
     public IssuerOrder(){}
 
-    public IssuerOrder(LocalDateTime issuerTimestamp, String accountId, String bank, int amount) {
+    public IssuerOrder(LocalDateTime issuerTimestamp, String accountId, int amount) {
         this.issuerTimestamp = issuerTimestamp;
         this.accountId = accountId;
-        this.bank = bank;
         this.amount = amount;
     }
 
@@ -46,14 +43,6 @@ public class IssuerOrder {
 
     public void setAccountId(String accountId) {
         this.accountId = accountId;
-    }
-
-    public String getBank() {
-        return bank;
-    }
-
-    public void setBank(String bank) {
-        this.bank = bank;
     }
 
     public int getAmount() {

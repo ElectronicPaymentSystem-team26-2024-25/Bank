@@ -1,9 +1,6 @@
 package com.example.BankSystem.service;
 
-import com.example.BankSystem.dto.CardPaymentRequest;
-import com.example.BankSystem.dto.CardPaymentRequestResponse;
-import com.example.BankSystem.dto.PaymentExecutionRequest;
-import com.example.BankSystem.dto.PaymentExecutionResponse;
+import com.example.BankSystem.dto.*;
 import com.example.BankSystem.model.*;
 import com.example.BankSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +39,7 @@ public class CardPaymentService {
     }
 
     private int getNewCardPaymentId(int amount, int merchantOrderId){
-        Payment payment = new Payment(0, 0, merchantOrderId, amount, PaymentStatus.IN_PROGRESS);
+        Payment payment = new Payment(0, "banka1", 0, "banka2", amount, PaymentStatus.IN_PROGRESS, merchantOrderId);
         payment = paymentRepository.save(payment);
         return payment.getPaymentId();
     }
@@ -69,7 +66,7 @@ public class CardPaymentService {
         return true;
     }
 
-    public boolean hasSufficientFunds(int PAN, int paymentId){
+    public boolean hasSufficientFunds(String PAN, int paymentId){
         BankAccount account = bankAccountRepository.findByPAN(PAN);
         Payment payment = paymentRepository.getReferenceById(paymentId);
         if(account == null)
@@ -84,9 +81,8 @@ public class CardPaymentService {
         return payment.getStatus() == PaymentStatus.IN_PROGRESS;
     }
 
-    public boolean isAccountInCurrentBank(int pan){
-        String panStr = String.valueOf(pan);
-        String firstSixDigits = panStr.substring(0, 6);
+    public boolean isAccountInCurrentBank(String pan){
+        String firstSixDigits = pan.substring(0, 6);
         //TODO: izvuci iz nekog fajla identifikator banke
         if(firstSixDigits.equals("111111"))
             return true;
@@ -110,30 +106,60 @@ public class CardPaymentService {
 
     private AcquirerOrder makeAcquirerOrder(int amount, String merchantId){
         BankAccount bankAccount = bankAccountRepository.findByMerchantId(merchantId);
-        AcquirerOrder order = new AcquirerOrder(LocalDateTime.now(), bankAccount.getAccountId(), "trenutna banka", amount);
+        AcquirerOrder order = new AcquirerOrder(LocalDateTime.now(), bankAccount.getAccountId(), amount);
         return acquirerOrderRepository.save(order);
     }
 
-    private IssuerOrder makeIssuerOrder(int amount, int PAN){
+    private IssuerOrder makeIssuerOrder(int amount, String PAN){
         BankAccount bankAccount = bankAccountRepository.findByPAN(PAN);
-        IssuerOrder order = new IssuerOrder(LocalDateTime.now(), bankAccount.getAccountId(), "trenutna banka", amount);
+        IssuerOrder order = new IssuerOrder(LocalDateTime.now(), bankAccount.getAccountId(), amount);
         return issuerOrderRepository.save(order);
     }
 
-    private void executePayment(String merchantId, int buyerPAN, int amount){
+    private void executePayment(String merchantId, String buyerPAN, int amount){
         BankAccount merchantAccount = bankAccountRepository.findByMerchantId(merchantId);
         addFunds(merchantAccount.getPAN(), amount);
         withdrawFunds(buyerPAN, amount);
     }
 
-    private void addFunds(int PAN, int amount){
+    private void addFunds(String PAN, int amount){
         BankAccount account = bankAccountRepository.findByPAN(PAN);
         account.setAvailableFunds(account.getAvailableFunds() + amount);
         bankAccountRepository.save(account);
     }
-    private void withdrawFunds(int PAN, int amount){
+    private void withdrawFunds(String PAN, int amount){
         BankAccount account = bankAccountRepository.findByPAN(PAN);
         account.setAvailableFunds(account.getAvailableFunds() - amount);
         bankAccountRepository.save(account);
     }
+
+    public PCCPaymentExecutionResponse savePaymentAtIssuer(PCCPaymentExecutionRequest paymentExecution){
+        Payment payment = new Payment(paymentExecution.getAcquirerOrderId(), paymentExecution.getAcquirerBank(), 0, "trenutna banka", paymentExecution.getAmount(), PaymentStatus.IN_PROGRESS, paymentExecution.getMerchantOrderId());
+        paymentRepository.save(payment);
+        MerchantOrder merchantOrder = merchantOrderRepository.getReferenceById(payment.getMerchantOrderId());
+        IssuerOrder issuerOrder = makeIssuerOrder(payment.getAmount(), paymentExecution.getPAN());
+        payment.setAcquirerOrderId(paymentExecution.getAcquirerOrderId());
+        payment.setIssuerOrderId(issuerOrder.getIssuerOrderId());
+        withdrawFunds(paymentExecution.getPAN(), payment.getAmount());
+        payment.setStatus(PaymentStatus.SUCCESS);
+        paymentRepository.save(payment);
+        return new PCCPaymentExecutionResponse(paymentExecution.getAcquirerOrderId(), paymentExecution.getAcquirerOrderTimestamp(),
+                issuerOrder.getIssuerOrderId(), issuerOrder.getIssuerTimestamp(), payment.getStatus(), "trenutna banka");
+        //iscitati trenutnu banku iz konfiguracije
+    }
+
+    public void savePaymentAtAcquirer(PCCPaymentExecutionResponse pccPaymentExecutionResponse, int paymentId){
+        Payment payment = paymentRepository.getReferenceById(paymentId);
+        payment.setStatus(pccPaymentExecutionResponse.getPaymentStatus());
+        payment.setAcquirerOrderId(pccPaymentExecutionResponse.getAcquirerOrderId());
+        //iscitati trenutnu banku iz konfiguracije
+        payment.setAcquirerBank("trenutna banka");
+        payment.setIssuerOrderId(pccPaymentExecutionResponse.getIssuerOrderId());
+        payment.setIssuerBank(pccPaymentExecutionResponse.getIssuerBank());
+        MerchantOrder merchantOrder = merchantOrderRepository.getReferenceById(payment.getMerchantOrderId());
+        BankAccount merchantAccount = bankAccountRepository.findByMerchantId(merchantOrder.getMerchantId());
+        addFunds(merchantAccount.getPAN(), payment.getAmount());
+        paymentRepository.save(payment);
+    }
+
 }

@@ -11,7 +11,7 @@ public class BankAccount {
     @GeneratedValue(strategy = GenerationType.UUID)
     String accountId;
     @Column(name="PAN", nullable=false)
-    private int PAN;
+    private String PAN;
     @Column(name="SECURITY_CODE", nullable=false)
     private int securityCode;
     @Column(name="CARD_HOLDER_NAME", nullable=false)
@@ -29,11 +29,11 @@ public class BankAccount {
         return accountId;
     }
 
-    public int getPAN() {
+    public String getPAN() {
         return PAN;
     }
 
-    public void setPAN(int PAN) {
+    public void setPAN(String PAN) {
         this.PAN = PAN;
     }
 

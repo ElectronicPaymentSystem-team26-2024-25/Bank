@@ -3,7 +3,9 @@ package com.example.BankSystem.controller;
 import com.example.BankSystem.dto.CardPaymentRequest;
 import com.example.BankSystem.dto.CardPaymentRequestResponse;
 import com.example.BankSystem.dto.PaymentExecutionRequest;
+import com.example.BankSystem.dto.PaymentExecutionResponse;
 import com.example.BankSystem.service.CardPaymentService;
+import com.example.BankSystem.service.PccCommunicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 public class CardPaymentController {
     @Autowired
     CardPaymentService cardPaymentService;
+    @Autowired
+    PccCommunicationService pccCommunicationService;
     @PostMapping (consumes = "application/json", path = "/cardpaymentform")
     public ResponseEntity<CardPaymentRequestResponse> getCardPaymentRequestResponse(@RequestBody CardPaymentRequest cardPaymentRequest)
     {
@@ -39,8 +43,11 @@ public class CardPaymentController {
             return new ResponseEntity<>(cardPaymentService.savePayment(paymentExecutionRequest), HttpStatus.OK);
         }
         else{
-            //pozovi drugu banku
-
+            PaymentExecutionResponse response = pccCommunicationService.sendRequestToPCC(paymentExecutionRequest);
+            if(response==null)
+                return new ResponseEntity<>("Invalid request: couldn't reach issuer bank",HttpStatus.BAD_REQUEST);
+            else
+                return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
 }

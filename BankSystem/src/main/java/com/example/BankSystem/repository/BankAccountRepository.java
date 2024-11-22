@@ -4,6 +4,6 @@ import com.example.BankSystem.model.BankAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BankAccountRepository extends JpaRepository<BankAccount, String> {
-    public BankAccount findByPAN(int PAN);
+    public BankAccount findByPAN(String PAN);
     public BankAccount findByMerchantId(String merchantId);
 }

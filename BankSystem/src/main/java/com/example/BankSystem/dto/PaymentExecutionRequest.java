@@ -3,7 +3,7 @@ package com.example.BankSystem.dto;
 import java.time.LocalDate;
 
 public class PaymentExecutionRequest {
-    private int pan;
+    private String pan;
     private int securityCode;
     private String cardHolderName;
     private LocalDate expirationDate;
@@ -11,11 +11,11 @@ public class PaymentExecutionRequest {
 
     public PaymentExecutionRequest(){}
 
-    public int getPAN() {
+    public String getPAN() {
         return pan;
     }
 
-    public void setPAN(int PAN) {
+    public void setPAN(String PAN) {
         this.pan = PAN;
     }
 
