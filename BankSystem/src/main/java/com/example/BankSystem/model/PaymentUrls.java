@@ -11,7 +11,7 @@ public class PaymentUrls {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
     @Column(name = "PAYMENT_ID", nullable = false)
-    int paymentId;
+    String paymentId;
     @Column(name = "SUCCESS_URL", nullable = false)
     String successUrl;
     @Column(name = "FAIL_URL", nullable = false)
@@ -20,7 +20,7 @@ public class PaymentUrls {
     String errorUrl;
     public PaymentUrls(){}
 
-    public PaymentUrls(int paymentId, String successUrl, String failUrl, String errorUrl) {
+    public PaymentUrls(String paymentId, String successUrl, String failUrl, String errorUrl) {
         this.paymentId = paymentId;
         this.successUrl = successUrl;
         this.failUrl = failUrl;
@@ -35,11 +35,11 @@ public class PaymentUrls {
         this.id = id;
     }
 
-    public int getPaymentId() {
+    public String getPaymentId() {
         return paymentId;
     }
 
-    public void setPaymentId(int paymentId) {
+    public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
     }
 

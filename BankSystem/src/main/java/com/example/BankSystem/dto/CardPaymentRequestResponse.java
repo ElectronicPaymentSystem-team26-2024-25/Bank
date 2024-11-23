@@ -1,18 +1,18 @@
 package com.example.BankSystem.dto;
 
 public class CardPaymentRequestResponse {
-    private int paymentId;
+    private String paymentId;
     private String paymentUrl;
     public CardPaymentRequestResponse(){}
-    public CardPaymentRequestResponse(int paymentId, String paymentUrl){
+    public CardPaymentRequestResponse(String paymentId, String paymentUrl){
         this.paymentId = paymentId;
         this.paymentUrl = paymentUrl;
     }
-    public int getPaymentId() {
+    public String getPaymentId() {
         return paymentId;
     }
 
-    public void setPaymentId(int paymentId) {
+    public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
     }
 

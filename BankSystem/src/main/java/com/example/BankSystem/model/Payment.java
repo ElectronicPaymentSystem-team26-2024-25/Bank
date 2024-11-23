@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 public class Payment {
     @Id
     @Column(name="PAYMENT_ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int paymentId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String paymentId;
     @Column(name = "ACQUIRER_ORDER_ID", nullable = false)
     int acquirerOrderId;
     @Column(name = "ACQUIRER_BANK", nullable = false)
@@ -34,7 +34,7 @@ public class Payment {
         this.merchantOrderId = merchantOrderId;
     }
 
-    public int getPaymentId() {
+    public String getPaymentId() {
         return paymentId;
     }
 

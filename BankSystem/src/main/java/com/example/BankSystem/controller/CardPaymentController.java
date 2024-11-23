@@ -24,7 +24,7 @@ public class CardPaymentController {
     public ResponseEntity<CardPaymentRequestResponse> getCardPaymentRequestResponse(@RequestBody CardPaymentRequest cardPaymentRequest)
     {
         CardPaymentRequestResponse response = cardPaymentService.getCardPaymentForm(cardPaymentRequest);
-        if(response.getPaymentId() == -1)
+        if(response.getPaymentId().equals("-1"))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         else
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -40,10 +40,10 @@ public class CardPaymentController {
         if(cardPaymentService.isAccountInCurrentBank(paymentExecutionRequest.getPAN())){
             if(!cardPaymentService.isCardDataValid(paymentExecutionRequest))
                 // da li vratiti bad request 400 ili 200
-                return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, -1, PaymentStatus.ERROR,
+                return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, "-1", PaymentStatus.ERROR,
                         cardPaymentService.getPaymentUrl(PaymentStatus.ERROR, paymentExecutionRequest.getPaymentId()), "Card data invalid."),HttpStatus.OK);
             if(!cardPaymentService.hasSufficientFunds(paymentExecutionRequest.getPAN(), paymentExecutionRequest.getPaymentId()))
-                return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, -1, PaymentStatus.FAIL,
+                return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, "-1", PaymentStatus.FAIL,
                         cardPaymentService.getPaymentUrl(PaymentStatus.FAIL, paymentExecutionRequest.getPaymentId()), "Insufficient funds on account."),HttpStatus.OK);
             return new ResponseEntity<>(cardPaymentService.savePayment(paymentExecutionRequest), HttpStatus.OK);
         }

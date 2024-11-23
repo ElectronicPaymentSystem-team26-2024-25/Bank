@@ -32,11 +32,11 @@ public class CardPaymentService {
     public CardPaymentRequestResponse getCardPaymentForm(CardPaymentRequest cardPaymentRequest){
         if(isCardPaymentRequestValid(cardPaymentRequest)){
             saveMerchantOrder(cardPaymentRequest);
-            int paymentId = getNewCardPaymentId(cardPaymentRequest.getAmount(), cardPaymentRequest.getMerchantOrderId());
+            String paymentId = getNewCardPaymentId(cardPaymentRequest.getAmount(), cardPaymentRequest.getMerchantOrderId());
             savePaymentUrls(cardPaymentRequest, paymentId);
             return new CardPaymentRequestResponse(paymentId, getPaymentUrl(paymentId));
         }else{
-            return new CardPaymentRequestResponse(-1, "");
+            return new CardPaymentRequestResponse("-1", "");
         }
     }
 
@@ -48,12 +48,12 @@ public class CardPaymentService {
         else return true;
     }
 
-    private int getNewCardPaymentId(int amount, int merchantOrderId){
+    private String getNewCardPaymentId(int amount, int merchantOrderId){
         Payment payment = new Payment(0, bankName, 0, "?", amount, PaymentStatus.IN_PROGRESS, merchantOrderId);
         payment = paymentRepository.save(payment);
         return payment.getPaymentId();
     }
-    private void savePaymentUrls(CardPaymentRequest cardPaymentRequest, int paymentId){
+    private void savePaymentUrls(CardPaymentRequest cardPaymentRequest, String paymentId){
         PaymentUrls paymentUrls = new PaymentUrls(paymentId, cardPaymentRequest.getSuccessUrl(), cardPaymentRequest.getFailedUrl(), cardPaymentRequest.getErrorUrl());
         paymentUrlsRepository.save(paymentUrls);
     }
@@ -62,7 +62,7 @@ public class CardPaymentService {
         merchantOrderRepository.save(order);
     }
 
-    private String getPaymentUrl(int paymentId){
+    private String getPaymentUrl(String paymentId){
         return "http://localhost:4200/payment/"+paymentId;
     }
 
@@ -79,7 +79,7 @@ public class CardPaymentService {
         return true;
     }
 
-    public boolean hasSufficientFunds(String PAN, int paymentId){
+    public boolean hasSufficientFunds(String PAN, String paymentId){
         BankAccount account = bankAccountRepository.findByPAN(PAN);
         Payment payment = paymentRepository.getReferenceById(paymentId);
         if(account == null)
@@ -92,7 +92,7 @@ public class CardPaymentService {
             return false;
         return account.getAvailableFunds() >= amount;
     }
-    public boolean isPaymentExecutable(int paymentId){
+    public boolean isPaymentExecutable(String paymentId){
         Payment payment = paymentRepository.getReferenceById(paymentId);
         if(payment.getStatus() == PaymentStatus.SUCCESS)
             return false;
@@ -165,7 +165,7 @@ public class CardPaymentService {
                 issuerOrder.getIssuerOrderId(), issuerOrder.getIssuerTimestamp(), payment.getStatus(), bankName, ".");
     }
 
-    public void savePaymentAtAcquirer(PCCPaymentExecutionResponse pccPaymentExecutionResponse, int paymentId){
+    public void savePaymentAtAcquirer(PCCPaymentExecutionResponse pccPaymentExecutionResponse, String paymentId){
         Payment payment = paymentRepository.getReferenceById(paymentId);
         payment.setStatus(pccPaymentExecutionResponse.getPaymentStatus());
         payment.setAcquirerOrderId(pccPaymentExecutionResponse.getAcquirerOrderId());
@@ -177,7 +177,7 @@ public class CardPaymentService {
         addFunds(merchantAccount.getPAN(), payment.getAmount());
         paymentRepository.save(payment);
     }
-    public String getPaymentUrl(PaymentStatus status, int paymentId){
+    public String getPaymentUrl(PaymentStatus status, String paymentId){
         PaymentUrls paymentUrls = paymentUrlsRepository.findByPaymentId(paymentId);
         if(status == PaymentStatus.SUCCESS) return paymentUrls.getSuccessUrl();
         else if (status == PaymentStatus.ERROR) return paymentUrls.getErrorUrl();

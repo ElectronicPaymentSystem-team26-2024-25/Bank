@@ -8,7 +8,7 @@ public class PCCPaymentExecutionRequest {
     private int securityCode;
     private String cardHolderName;
     private LocalDate expirationDate;
-    private int paymentId;
+    private String paymentId;
     private int acquirerOrderId;
     private LocalDateTime acquirerOrderTimestamp;
     private String acquirerBank;
@@ -49,11 +49,11 @@ public class PCCPaymentExecutionRequest {
         this.expirationDate = expirationDate;
     }
 
-    public int getPaymentId() {
+    public String getPaymentId() {
         return paymentId;
     }
 
-    public void setPaymentId(int paymentId) {
+    public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
     }
 

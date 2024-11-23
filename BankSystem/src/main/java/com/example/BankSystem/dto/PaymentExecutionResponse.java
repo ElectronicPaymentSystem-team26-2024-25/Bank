@@ -8,14 +8,14 @@ public class PaymentExecutionResponse {
     private int merchantOrderId;
     private int acquirerOrderId;
     private LocalDateTime acquirerTimestamp;
-    private int paymentId;
+    private String paymentId;
     private PaymentStatus status;
     private String redirectUrl;
     private String failReason;
 
     public PaymentExecutionResponse(){}
 
-    public PaymentExecutionResponse(int merchantOrderId, int acquirerOrderId, LocalDateTime acquirerTimestamp, int paymentId, PaymentStatus status, String redirectUrl, String failReason) {
+    public PaymentExecutionResponse(int merchantOrderId, int acquirerOrderId, LocalDateTime acquirerTimestamp, String paymentId, PaymentStatus status, String redirectUrl, String failReason) {
         this.merchantOrderId = merchantOrderId;
         this.acquirerOrderId = acquirerOrderId;
         this.acquirerTimestamp = acquirerTimestamp;
@@ -49,11 +49,11 @@ public class PaymentExecutionResponse {
         this.acquirerTimestamp = acquirerTimestamp;
     }
 
-    public int getPaymentId() {
+    public String getPaymentId() {
         return paymentId;
     }
 
-    public void setPaymentId(int paymentId) {
+    public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
     }
 

@@ -7,7 +7,7 @@ public class PaymentExecutionRequest {
     private int securityCode;
     private String cardHolderName;
     private LocalDate expirationDate;
-    private int paymentId;
+    private String paymentId;
 
     public PaymentExecutionRequest(){}
 
@@ -49,11 +49,11 @@ public class PaymentExecutionRequest {
         this.expirationDate = expirationDate;
     }
 
-    public int getPaymentId() {
+    public String getPaymentId() {
         return paymentId;
     }
 
-    public void setPaymentId(int paymentId) {
+    public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
     }
 }

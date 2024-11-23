@@ -1,5 +1,5 @@
 export interface Payment{
-    paymentId: number;
+    paymentId: string;
     pan: string;
     securityCode: number;
     cardHolderName: string;

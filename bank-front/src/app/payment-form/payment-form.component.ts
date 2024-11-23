@@ -12,8 +12,8 @@ import { PaymentStatus } from '../model/payment-status';
   styleUrls: ['./payment-form.component.css']
 })
 export class PaymentFormComponent {
-  paymentRequest: Payment = {cardHolderName: '', expirationDate: new Date(), pan: "", paymentId: 0, securityCode: 0}
-  paymentId: number | null = null
+  paymentRequest: Payment = {cardHolderName: '', expirationDate: new Date(), pan: "", paymentId: '0', securityCode: 0}
+  paymentId: string | null = null
   pan: string = ""
   security_code: number = 0
   card_holder_name: string = ""
@@ -23,7 +23,7 @@ export class PaymentFormComponent {
 
   ngOnInit(): void{
     const idString = this.route.snapshot.paramMap.get('paymentId')
-    this.paymentId = idString != null ? Number(idString) : null
+    this.paymentId = idString != null ? idString : null
   }
 
   onSubmit(){
