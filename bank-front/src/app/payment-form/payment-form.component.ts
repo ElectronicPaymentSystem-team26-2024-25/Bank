@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Payment } from '../model/payment';
+import { BankPaymentResponse } from '../model/payment-response';
+import { PSPRedirection } from '../model/psp-redirection';
 import { BankService } from '../service/bank-service.service';
+import { PaymentStatus } from '../model/payment-status';
 
 @Component({
   selector: 'app-payment-form',
@@ -9,14 +12,14 @@ import { BankService } from '../service/bank-service.service';
   styleUrls: ['./payment-form.component.css']
 })
 export class PaymentFormComponent {
-  paymentRequest: Payment = {cardHolderName: '', expirationDate: new Date(), pan: 0, paymentId: 0, securityCode: 0}
+  paymentRequest: Payment = {cardHolderName: '', expirationDate: new Date(), pan: "", paymentId: 0, securityCode: 0}
   paymentId: number | null = null
-  pan: number = 0
+  pan: string = ""
   security_code: number = 0
   card_holder_name: string = ""
   expiration_date: string = ""
   
-  constructor(private route: ActivatedRoute, private service: BankService) {}
+  constructor(private route: ActivatedRoute, private service: BankService, private router: Router) {}
 
   ngOnInit(): void{
     const idString = this.route.snapshot.paramMap.get('paymentId')
@@ -32,12 +35,14 @@ export class PaymentFormComponent {
     console.log(this.paymentRequest)
     this.service.executePayment(this.paymentRequest).subscribe({
       next: (response) => {
-        console.log(response);
-        alert('success')
+        if(response.status === PaymentStatus.SUCCESS){
+            this.sendSuccessData(response.redirectUrl)
+        }else{
+          this.sendErrorData(response.redirectUrl, response.failReason)
+        }
       },
       error: (error) => {
-        //znaci ovde umesto ispisa u alertu samo mogu da posaljem onaj error fail url i redirektujem ga ka tamo. Isto i u slucaju da je uspeo samo success url
-        alert(error.error);
+        this.sendErrorData('', 'Invalid request')
       }
     });
   }
@@ -49,5 +54,12 @@ export class PaymentFormComponent {
     const date = new Date(year, month, 28)
     return date
   }
-  
+  sendSuccessData(successUrl: string){
+    const successData: PSPRedirection = { failReason: '.', url: successUrl }
+    this.router.navigate(['/success'], { state: { data: successData } });
+  }
+  sendErrorData(errorUrl: string, failReason: string){
+    const errorData: PSPRedirection = { failReason: failReason, url: errorUrl }
+    this.router.navigate(['/error'], { queryParams: { data: JSON.stringify(errorData) }  });
+  }
 }

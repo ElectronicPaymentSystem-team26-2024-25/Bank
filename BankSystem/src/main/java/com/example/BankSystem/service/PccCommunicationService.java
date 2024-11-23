@@ -4,10 +4,7 @@ import com.example.BankSystem.dto.PCCPaymentExecutionRequest;
 import com.example.BankSystem.dto.PCCPaymentExecutionResponse;
 import com.example.BankSystem.dto.PaymentExecutionRequest;
 import com.example.BankSystem.dto.PaymentExecutionResponse;
-import com.example.BankSystem.model.AcquirerOrder;
-import com.example.BankSystem.model.BankAccount;
-import com.example.BankSystem.model.MerchantOrder;
-import com.example.BankSystem.model.Payment;
+import com.example.BankSystem.model.*;
 import com.example.BankSystem.repository.AcquirerOrderRepository;
 import com.example.BankSystem.repository.BankAccountRepository;
 import com.example.BankSystem.repository.MerchantOrderRepository;
@@ -44,7 +41,8 @@ public class PccCommunicationService {
         if(response.getStatusCode() == HttpStatusCode.valueOf(400))
             return null;
         PCCPaymentExecutionResponse responseBody = response.getBody();
-        cardPaymentService.savePaymentAtAcquirer(responseBody, payment.getPaymentId());
+        if(responseBody.getPaymentStatus() == PaymentStatus.SUCCESS)
+            cardPaymentService.savePaymentAtAcquirer(responseBody, payment.getPaymentId());
         return new PaymentExecutionResponse(payment.getMerchantOrderId(), responseBody.getAcquirerOrderId(), responseBody.getAcquirerTimestamp(),
         paymentExecutionRequest.getPaymentId(), responseBody.getPaymentStatus(), cardPaymentService.getPaymentUrl(responseBody.getPaymentStatus(), payment.getPaymentId()), responseBody.getFailReason());
     }

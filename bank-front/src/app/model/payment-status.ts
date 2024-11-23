@@ -1,6 +1,6 @@
-enum PaymentStatus {
-    SUCCESS = 0,
-    FAIL = 1,
-    ERROR = 2,
-    IN_PROGRESS = 3,
+export enum PaymentStatus {
+    SUCCESS = 'SUCCESS',
+    FAIL = 'FAIL',
+    ERROR = 'ERROR',
+    IN_PROGRESS = 'IN_PROGRESS',
   }
