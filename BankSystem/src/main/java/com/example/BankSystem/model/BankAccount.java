@@ -22,6 +22,8 @@ public class BankAccount {
     private int availableFunds;
     @Column(name="MERCHANT_ID", nullable=true)
     private String merchantId;
+    @Column(name="MERCHANT_PASSWORD", nullable=true)
+    private String merchantPassword;
 
     public BankAccount(){}
 
@@ -75,5 +77,13 @@ public class BankAccount {
 
     public void setMerchantId(String merchantId) {
         this.merchantId = merchantId;
+    }
+
+    public String getMerchantPassword() {
+        return merchantPassword;
+    }
+
+    public void setMerchantPassword(String merchantPassword) {
+        this.merchantPassword = merchantPassword;
     }
 }

@@ -34,8 +34,7 @@ public class CardPaymentController {
     @PutMapping (consumes = "application/json", path = "/executepayment")
     public ResponseEntity<Object> executePayment(@RequestBody PaymentExecutionRequest paymentExecutionRequest)
     {
-        //TODO: proveriti pre ovoga da li je struktura PAN-a dobra
-        if(!cardPaymentService.isPaymentExecutable(paymentExecutionRequest.getPaymentId()))
+        if(!cardPaymentService.isPaymentExecutable(paymentExecutionRequest.getPaymentId()) || !cardPaymentService.isPANValid(paymentExecutionRequest.getPAN()))
             return new ResponseEntity<>("Invalid request",HttpStatus.BAD_REQUEST);
         if(cardPaymentService.isAccountInCurrentBank(paymentExecutionRequest.getPAN())){
             if(!cardPaymentService.isCardDataValid(paymentExecutionRequest))
@@ -45,14 +44,23 @@ public class CardPaymentController {
             if(!cardPaymentService.hasSufficientFunds(paymentExecutionRequest.getPAN(), paymentExecutionRequest.getPaymentId()))
                 return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, "-1", PaymentStatus.FAIL,
                         cardPaymentService.getPaymentUrl(PaymentStatus.FAIL, paymentExecutionRequest.getPaymentId()), "Insufficient funds on account."),HttpStatus.OK);
-            return new ResponseEntity<>(cardPaymentService.savePayment(paymentExecutionRequest), HttpStatus.OK);
+            PaymentExecutionResponse response = cardPaymentService.savePayment(paymentExecutionRequest);
+            cardPaymentService.sendResponseToPSP(response);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         else{
             PaymentExecutionResponse response = pccCommunicationService.sendRequestToPCC(paymentExecutionRequest);
             if(response==null)
                 return new ResponseEntity<>("Invalid request: couldn't reach issuer bank",HttpStatus.BAD_REQUEST);
-            else
+            else{
+                cardPaymentService.sendResponseToPSP(response);
                 return new ResponseEntity<>(response, HttpStatus.OK);
+            }
         }
+    }
+    @GetMapping (path = "/amount/{paymentId}")
+    public ResponseEntity<Integer> getAmount(@PathVariable String paymentId)
+    {
+        return new ResponseEntity<>(cardPaymentService.getPaymentAmount(paymentId), HttpStatus.OK);
     }
 }

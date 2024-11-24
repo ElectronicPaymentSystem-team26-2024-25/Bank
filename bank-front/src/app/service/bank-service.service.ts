@@ -15,4 +15,7 @@ export class BankService {
   executePayment(payment: Payment): Observable<BankPaymentResponse> {
     return this.http.put<BankPaymentResponse>(environment.apiHost + 'cardpayment/executepayment', payment);
   }
+  getAmount(paymentId: string): Observable<number> {
+    return this.http.get<number>(environment.apiHost + 'cardpayment/amount/'+paymentId);
+  }
 }

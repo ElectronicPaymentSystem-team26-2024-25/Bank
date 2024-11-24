@@ -5,7 +5,9 @@ import com.example.BankSystem.model.*;
 import com.example.BankSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +27,8 @@ public class CardPaymentService {
     MerchantOrderRepository merchantOrderRepository;
     @Autowired
     PaymentUrlsRepository paymentUrlsRepository;
+    @Autowired
+    RestTemplate restTemplate;
     @Value("${custom.property.bankName}")
     String bankName;
     @Value("${custom.property.bankId}")
@@ -42,10 +46,8 @@ public class CardPaymentService {
 
     private boolean isCardPaymentRequestValid(CardPaymentRequest cardPaymentRequest){
         //TODO: kako proveriti da li je zahtev validan???
-        BankAccount account = bankAccountRepository.findByMerchantId(cardPaymentRequest.getMerchantId());
-        if(account == null)
-            return false;
-        else return true;
+        BankAccount account = bankAccountRepository.findByMerchantIdAndMerchantPassword(cardPaymentRequest.getMerchantId(), cardPaymentRequest.getMerchantPassword());
+        return account != null;
     }
 
     private String getNewCardPaymentId(int amount, int merchantOrderId){
@@ -63,7 +65,7 @@ public class CardPaymentService {
     }
 
     private String getPaymentUrl(String paymentId){
-        return "http://localhost:4200/payment/"+paymentId;
+        return "http://localhost:4201/payment/"+paymentId;
     }
 
     public boolean isCardDataValid(PaymentExecutionRequest paymentExecutionRequest){
@@ -97,6 +99,10 @@ public class CardPaymentService {
         if(payment.getStatus() == PaymentStatus.SUCCESS)
             return false;
         return true;
+    }
+
+    public boolean isPANValid(String pan){
+        return pan.length() >= 6;
     }
 
     public boolean isAccountInCurrentBank(String pan){
@@ -182,5 +188,12 @@ public class CardPaymentService {
         if(status == PaymentStatus.SUCCESS) return paymentUrls.getSuccessUrl();
         else if (status == PaymentStatus.ERROR) return paymentUrls.getErrorUrl();
         else return paymentUrls.getFailUrl();
+    }
+    public void sendResponseToPSP(PaymentExecutionResponse response){
+        String url = "http://localhost:8095/api/payment/order-status";
+        ResponseEntity<Object> r = restTemplate.postForEntity(url, response, Object.class);
+    }
+    public int getPaymentAmount(String paymentId){
+        return paymentRepository.getReferenceById(paymentId).getAmount();
     }
 }

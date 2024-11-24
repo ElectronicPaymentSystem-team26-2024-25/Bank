@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Payment } from '../model/payment';
-import { BankPaymentResponse } from '../model/payment-response';
-import { PSPRedirection } from '../model/psp-redirection';
 import { BankService } from '../service/bank-service.service';
 import { PaymentStatus } from '../model/payment-status';
 
@@ -18,12 +16,14 @@ export class PaymentFormComponent {
   security_code: number = 0
   card_holder_name: string = ""
   expiration_date: string = ""
+  amount: number = 0
   
   constructor(private route: ActivatedRoute, private service: BankService, private router: Router) {}
 
   ngOnInit(): void{
     const idString = this.route.snapshot.paramMap.get('paymentId')
     this.paymentId = idString != null ? idString : null
+    this.getPaymentAmount()
   }
 
   onSubmit(){
@@ -36,13 +36,15 @@ export class PaymentFormComponent {
     this.service.executePayment(this.paymentRequest).subscribe({
       next: (response) => {
         if(response.status === PaymentStatus.SUCCESS){
-            this.sendSuccessData(response.redirectUrl)
+            window.location.href = 'http://localhost:4200/success/'+response.merchantOrderId
+        }else if(response.status = PaymentStatus.ERROR){
+          window.location.href = 'http://localhost:4200/error/'+response.merchantOrderId
         }else{
-          this.sendErrorData(response.redirectUrl, response.failReason)
+          window.location.href = 'http://localhost:4200/fail/'+response.merchantOrderId
         }
       },
       error: (error) => {
-        this.sendErrorData('', 'Invalid request')
+        window.location.href = 'http://localhost:4200/error/-1'
       }
     });
   }
@@ -54,12 +56,12 @@ export class PaymentFormComponent {
     const date = new Date(year, month, 28)
     return date
   }
-  sendSuccessData(successUrl: string){
-    const successData: PSPRedirection = { failReason: '.', url: successUrl }
-    this.router.navigate(['/success'], { state: { data: successData } });
-  }
-  sendErrorData(errorUrl: string, failReason: string){
-    const errorData: PSPRedirection = { failReason: failReason, url: errorUrl }
-    this.router.navigate(['/error'], { queryParams: { data: JSON.stringify(errorData) }  });
+
+  getPaymentAmount(){
+    this.service.getAmount(this.paymentId!).subscribe({
+      next: (response) => {
+        this.amount = response
+      }
+    });
   }
 }
