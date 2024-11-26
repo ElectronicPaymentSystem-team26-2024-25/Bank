@@ -124,7 +124,7 @@ public class CardPaymentService {
         executePayment(merchantOrder.getMerchantId(), paymentExecution.getPAN(), payment.getAmount());
         payment.setStatus(PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
-        return new PaymentExecutionResponse(0, acquirerOrder.getAcquirerOrderId(), acquirerOrder.getAcquirerTimestamp(),
+        return new PaymentExecutionResponse(merchantOrder.getMerchantOrderId(), acquirerOrder.getAcquirerOrderId(), acquirerOrder.getAcquirerTimestamp(),
                 paymentExecution.getPaymentId(), PaymentStatus.SUCCESS, "success url sa domenom PSP-a", ".");
     }
 
