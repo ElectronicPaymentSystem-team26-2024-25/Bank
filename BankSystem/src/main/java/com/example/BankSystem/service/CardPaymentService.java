@@ -33,19 +33,18 @@ public class CardPaymentService {
     String bankName;
     @Value("${custom.property.bankId}")
     String bankId;
-    public CardPaymentRequestResponse getCardPaymentForm(CardPaymentRequest cardPaymentRequest){
+    public CardPaymentRequestResponse getCardPaymentForm(CardPaymentRequest cardPaymentRequest, boolean isQRCode){
         if(isCardPaymentRequestValid(cardPaymentRequest)){
             saveMerchantOrder(cardPaymentRequest);
             String paymentId = getNewCardPaymentId(cardPaymentRequest.getAmount(), cardPaymentRequest.getMerchantOrderId());
             savePaymentUrls(cardPaymentRequest, paymentId);
-            return new CardPaymentRequestResponse(paymentId, getPaymentUrl(paymentId));
+            return new CardPaymentRequestResponse(paymentId, getPaymentUrl(paymentId, isQRCode));
         }else{
             return new CardPaymentRequestResponse("-1", "");
         }
     }
 
     private boolean isCardPaymentRequestValid(CardPaymentRequest cardPaymentRequest){
-        //TODO: kako proveriti da li je zahtev validan???
         BankAccount account = bankAccountRepository.findByMerchantIdAndMerchantPassword(cardPaymentRequest.getMerchantId(), cardPaymentRequest.getMerchantPassword());
         return account != null;
     }
@@ -64,8 +63,14 @@ public class CardPaymentService {
         merchantOrderRepository.save(order);
     }
 
-    private String getPaymentUrl(String paymentId){
-        return "http://localhost:4201/payment/"+paymentId;
+    private String getPaymentUrl(String paymentId, boolean isQRCode){
+        if(isQRCode){
+            return "http://localhost:4201/qrpayment/"+paymentId;
+        }
+        else{
+            return "http://localhost:4201/payment/"+paymentId;
+        }
+
     }
 
     public boolean isCardDataValid(PaymentExecutionRequest paymentExecutionRequest){
@@ -112,7 +117,6 @@ public class CardPaymentService {
         else return false;
     }
 
-    //TODO: dodati transakcioni rezim rada
     public PaymentExecutionResponse savePayment(PaymentExecutionRequest paymentExecution){
         Payment payment = paymentRepository.getReferenceById(paymentExecution.getPaymentId());
         MerchantOrder merchantOrder = merchantOrderRepository.getReferenceById(payment.getMerchantOrderId());

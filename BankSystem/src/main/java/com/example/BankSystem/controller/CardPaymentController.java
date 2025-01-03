@@ -1,9 +1,6 @@
 package com.example.BankSystem.controller;
 
-import com.example.BankSystem.dto.CardPaymentRequest;
-import com.example.BankSystem.dto.CardPaymentRequestResponse;
-import com.example.BankSystem.dto.PaymentExecutionRequest;
-import com.example.BankSystem.dto.PaymentExecutionResponse;
+import com.example.BankSystem.dto.*;
 import com.example.BankSystem.model.PaymentStatus;
 import com.example.BankSystem.service.CardPaymentService;
 import com.example.BankSystem.service.PccCommunicationService;
@@ -23,7 +20,7 @@ public class CardPaymentController {
     @PostMapping (consumes = "application/json", path = "/cardpaymentform")
     public ResponseEntity<CardPaymentRequestResponse> getCardPaymentRequestResponse(@RequestBody CardPaymentRequest cardPaymentRequest)
     {
-        CardPaymentRequestResponse response = cardPaymentService.getCardPaymentForm(cardPaymentRequest);
+        CardPaymentRequestResponse response = cardPaymentService.getCardPaymentForm(cardPaymentRequest, false);
         if(response.getPaymentId().equals("-1"))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         else
@@ -63,4 +60,5 @@ public class CardPaymentController {
     {
         return new ResponseEntity<>(cardPaymentService.getPaymentAmount(paymentId), HttpStatus.OK);
     }
+
 }
