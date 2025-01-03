@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MyMBankingApp</string>
+    <string name="title_activity_mejn">MejnActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_result">ResultActivity</string>
+</resources>
