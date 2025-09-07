@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class QRCodePaymentService {
@@ -55,7 +56,7 @@ public class QRCodePaymentService {
     }
 
     private IssuerOrder makeIssuerOrder(int amount, String accountNumber){
-        BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
+        BankAccount bankAccount = getAccountByAccountNumber(accountNumber);
         IssuerOrder order = new IssuerOrder(LocalDateTime.now(), bankAccount.getAccountId(), amount);
         return issuerOrderRepository.save(order);
     }
@@ -66,18 +67,18 @@ public class QRCodePaymentService {
     }
 
     private void addFunds(String accountNumber, int amount){
-        BankAccount account = bankAccountRepository.findByAccountNumber(accountNumber);
+        BankAccount account = getAccountByAccountNumber(accountNumber);
         account.setAvailableFunds(account.getAvailableFunds() + amount);
         bankAccountRepository.save(account);
     }
     private void withdrawFunds(String accountNumber, int amount){
-        BankAccount account = bankAccountRepository.findByAccountNumber(accountNumber);
+        BankAccount account = getAccountByAccountNumber(accountNumber);
         account.setAvailableFunds(account.getAvailableFunds() - amount);
         bankAccountRepository.save(account);
     }
 
     public boolean hasSufficientFunds(String accountNumber, String paymentId){
-        BankAccount account = bankAccountRepository.findByAccountNumber(accountNumber);
+        BankAccount account = getAccountByAccountNumber(accountNumber);
         Payment payment = paymentRepository.getReferenceById(paymentId);
         if(account == null)
             return false;
@@ -92,5 +93,13 @@ public class QRCodePaymentService {
         String qrText = "K:PR|V:01|C:"+paymentId+"|R:"+account.getAccountNumber()+"|N:Prodavac usluge|I:EU;"+payment.getAmount()+
                 "|P:TELEKOM|SF:123|S:Kupovanje usluge|RO:"+mOrder.getMerchantId();
         return qrText;
+    }
+
+    private BankAccount getAccountByAccountNumber(String accountNumber){
+        List<BankAccount> accounts = bankAccountRepository.findAll();
+        return accounts.stream()
+                .filter(a -> a.getAccountNumber().equals(accountNumber))
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -45,8 +45,9 @@ public class CardPaymentService {
     }
 
     private boolean isCardPaymentRequestValid(CardPaymentRequest cardPaymentRequest){
-        BankAccount account = bankAccountRepository.findByMerchantIdAndMerchantPassword(cardPaymentRequest.getMerchantId(), cardPaymentRequest.getMerchantPassword());
-        return account != null;
+        BankAccount account = bankAccountRepository.findByMerchantId(cardPaymentRequest.getMerchantId());
+        if (account == null) return false;
+        return account.getMerchantPassword().equals(cardPaymentRequest.getMerchantPassword());
     }
 
     private String getNewCardPaymentId(int amount, int merchantOrderId){
@@ -74,7 +75,7 @@ public class CardPaymentService {
     }
 
     public boolean isCardDataValid(PaymentExecutionRequest paymentExecutionRequest){
-        BankAccount account = bankAccountRepository.findByPAN(paymentExecutionRequest.getPAN());
+        BankAccount account = getAccountByPAN(paymentExecutionRequest.getPAN());
         if(account == null)
             return false;
         if(account.getSecurityCode() != paymentExecutionRequest.getSecurityCode() ||
@@ -87,14 +88,14 @@ public class CardPaymentService {
     }
 
     public boolean hasSufficientFunds(String PAN, String paymentId){
-        BankAccount account = bankAccountRepository.findByPAN(PAN);
+        BankAccount account = getAccountByPAN(PAN);
         Payment payment = paymentRepository.getReferenceById(paymentId);
         if(account == null)
             return false;
         return account.getAvailableFunds() >= payment.getAmount();
     }
     public boolean hasSufficientFundsAtIssuer(String PAN, int amount){
-        BankAccount account = bankAccountRepository.findByPAN(PAN);
+        BankAccount account = getAccountByPAN(PAN);
         if(account == null)
             return false;
         return account.getAvailableFunds() >= amount;
@@ -139,7 +140,7 @@ public class CardPaymentService {
     }
 
     private IssuerOrder makeIssuerOrder(int amount, String PAN){
-        BankAccount bankAccount = bankAccountRepository.findByPAN(PAN);
+        BankAccount bankAccount = getAccountByPAN(PAN);
         IssuerOrder order = new IssuerOrder(LocalDateTime.now(), bankAccount.getAccountId(), amount);
         return issuerOrderRepository.save(order);
     }
@@ -151,12 +152,12 @@ public class CardPaymentService {
     }
 
     private void addFunds(String PAN, int amount){
-        BankAccount account = bankAccountRepository.findByPAN(PAN);
+        BankAccount account = getAccountByPAN(PAN);
         account.setAvailableFunds(account.getAvailableFunds() + amount);
         bankAccountRepository.save(account);
     }
     private void withdrawFunds(String PAN, int amount){
-        BankAccount account = bankAccountRepository.findByPAN(PAN);
+        BankAccount account = getAccountByPAN(PAN);
         account.setAvailableFunds(account.getAvailableFunds() - amount);
         bankAccountRepository.save(account);
     }
@@ -200,4 +201,13 @@ public class CardPaymentService {
     public int getPaymentAmount(String paymentId){
         return paymentRepository.getReferenceById(paymentId).getAmount();
     }
+
+    private BankAccount getAccountByPAN(String PAN){
+        List<BankAccount> accounts = bankAccountRepository.findAll();
+        return accounts.stream()
+                .filter(a -> a.getPAN().equals(PAN))
+                .findFirst()
+                .orElse(null);
+    }
+
 }
