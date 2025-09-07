@@ -88,6 +88,7 @@ public class QRCodePaymentService {
         Payment payment = paymentRepository.getReferenceById(paymentId);
         MerchantOrder mOrder = merchantOrderRepository.getReferenceById(payment.getMerchantOrderId());
         BankAccount account = bankAccountRepository.findByMerchantId(mOrder.getMerchantId());
+        //TODO: probati naci podatke kao sto su naziv prodavca, svrha uplate itd...
         String qrText = "K:PR|V:01|C:"+paymentId+"|R:"+account.getAccountNumber()+"|N:Prodavac usluge|I:EU;"+payment.getAmount()+
                 "|P:TELEKOM|SF:123|S:Kupovanje usluge|RO:"+mOrder.getMerchantId();
         return qrText;

@@ -49,6 +49,10 @@ export class PaymentFormComponent {
     });
   }
 
+  payWithQrCode(){
+    this.router.navigate(['/qrpayment', this.paymentId]);
+  }
+
   parseDate(dateInput: string): Date{
     const [yy, mm] = dateInput.split('/')
     const year = 2000 + parseInt(yy, 10)

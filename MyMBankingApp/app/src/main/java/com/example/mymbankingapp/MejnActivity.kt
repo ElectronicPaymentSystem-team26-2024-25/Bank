@@ -16,7 +16,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MejnActivity : AppCompatActivity() {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.1.5:8060/")
+        //OVO MORAM MENJATI UVEK (IP adresu), bilo bi dobro kad bih mogao promeniti to
+        .baseUrl("http://192.168.100.6:8060/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -91,9 +92,10 @@ class MejnActivity : AppCompatActivity() {
         binding = ActivityMejnBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
-
     fun parseStringToObject(input: String) {
         var amountPart: String = "";
+        var merchantName: String = "";
+        var paymentPurpose: String = "";
         val pairs = input.split("|")
 
         for (pair in pairs) {
@@ -103,17 +105,22 @@ class MejnActivity : AppCompatActivity() {
                 "R" -> request.merchantAccountNumber = value
                 "I" -> amountPart = value
                 "RO" -> request.merchantId = value
+                "N" -> merchantName = value
+                "S" -> paymentPurpose = value
             }
         }
         val (currency, amount) = amountPart.split(";")
         request.amount =  amount.toInt()
-        request.customerAccountNumber = "17000000001234"
-        binding.textResultView.text = "Amount to pay: "+request.amount+"e";
+        request.customerAccountNumber = getString(R.string.user_account_number)
+        binding.amountText.text = "Amount to pay: "+request.amount+" "+currency
+        binding.merchantName.text = "Merchant name: " +merchantName
+        binding.paymentPurpose.text = "Payment purpose: "+paymentPurpose
     }
 
     fun fetchData(){
         val call: Call<PaymentResponse> = apiService.postData(request)
         println("URL: ${call.request().url()}")
+        println("BODY: ${call.request().body()}")
         call.enqueue(object : Callback<PaymentResponse> {
             override fun onResponse(call: Call<PaymentResponse>, response: Response<PaymentResponse>) {
                 if (response.isSuccessful && response.body() != null) {

@@ -35,7 +35,6 @@ public class CardPaymentController {
             return new ResponseEntity<>("Invalid request",HttpStatus.BAD_REQUEST);
         if(cardPaymentService.isAccountInCurrentBank(paymentExecutionRequest.getPAN())){
             if(!cardPaymentService.isCardDataValid(paymentExecutionRequest))
-                // da li vratiti bad request 400 ili 200
                 return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, "-1", PaymentStatus.ERROR,
                         cardPaymentService.getPaymentUrl(PaymentStatus.ERROR, paymentExecutionRequest.getPaymentId()), "Card data invalid."),HttpStatus.OK);
             if(!cardPaymentService.hasSufficientFunds(paymentExecutionRequest.getPAN(), paymentExecutionRequest.getPaymentId()))

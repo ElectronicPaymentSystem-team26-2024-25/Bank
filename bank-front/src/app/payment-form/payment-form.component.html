@@ -1,29 +1,59 @@
-<form (ngSubmit)="onSubmit()" #nameForm="ngForm">
-    <div>
-      <label for="pan">PAN:</label>
-      <input type="number" id="pan" name="pan" [(ngModel)]="pan" required />
+<div style="padding: 20px;">
+  <form (ngSubmit)="onSubmit()" #nameForm="ngForm" class="payment-form">
+    <!-- PAN -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>PAN</mat-label>
+      <input matInput type="number" id="pan" name="pan" [(ngModel)]="pan" required />
+      <mat-error *ngIf="nameForm.submitted && !pan">PAN is required</mat-error>
+    </mat-form-field>
+
+    <!-- Security Code -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Security Code</mat-label>
+      <input matInput type="number" id="security_code" name="security_code" [(ngModel)]="security_code" required />
+      <mat-error *ngIf="nameForm.submitted && !security_code">Security code is required</mat-error>
+    </mat-form-field>
+
+    <!-- Card Holder Name -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Card Holder Name</mat-label>
+      <input matInput type="text" id="card_holder_name" name="card_holder_name" [(ngModel)]="card_holder_name" required />
+      <mat-error *ngIf="nameForm.submitted && !card_holder_name">Card holder name is required</mat-error>
+    </mat-form-field>
+
+    <!-- Expiration Date -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Expiration Date (YY/MM)</mat-label>
+      <input 
+        matInput
+        type="text"
+        id="dateInput"
+        name="dateInput"
+        [(ngModel)]="expiration_date"
+        required
+        appDateValidator
+        #dateInput="ngModel"
+        placeholder="YY/MM"
+      />
+      <mat-error *ngIf="dateInput.invalid && dateInput.touched">
+        Please enter a valid date (YY/MM)
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Amount -->
+    <div class="amount">
+      <p><strong>Amount:</strong> {{amount}} din</p>
     </div>
-    <div>
-        <label for="security_code">Security code:</label>
-        <input type="number" id="security_code" name="security_code" [(ngModel)]="security_code" required />
+
+<!-- Buttons -->
+    <div class="button-row">
+      <button mat-raised-button color="primary" type="submit" [disabled]="!nameForm.form.valid">
+        Pay
+      </button>
+      <button mat-stroked-button color="accent" type="button" (click)="payWithQrCode()">
+        Pay using QR Code
+      </button>
     </div>
-    <div>
-        <label for="card_holder_name">Card holder name:</label>
-        <input type="text" id="card_holder_name" name="card_holder_name" [(ngModel)]="card_holder_name" required />
-    </div>
-    <label for="dateInput">Expiration date (YY/MM):</label>
-    <input 
-      type="text" 
-      id="dateInput" 
-      name="dateInput" 
-      [(ngModel)]="expiration_date"  
-      required 
-      appDateValidator 
-      #dateInput="ngModel" 
-      placeholder="YY/MM"
-    />
-    <div>
-      <p>Amount: {{amount}} din</p>
-    </div>
-    <button type="submit" [disabled]="!nameForm.form.valid">Submit</button>
-</form>
+  </form>
+</div>
+

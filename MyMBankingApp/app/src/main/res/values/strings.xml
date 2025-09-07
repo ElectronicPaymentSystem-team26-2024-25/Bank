@@ -5,4 +5,5 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_result">ResultActivity</string>
+    <string name="user_account_number">17000000001234</string>
 </resources>
