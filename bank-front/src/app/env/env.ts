@@ -1,3 +1,3 @@
 export const environment = {
-    apiHost: 'http://localhost:8060/api/',
+    apiHost: 'https://bank.local:8060/api/',
   };

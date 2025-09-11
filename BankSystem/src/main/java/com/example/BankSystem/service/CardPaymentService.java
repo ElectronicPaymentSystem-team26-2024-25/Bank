@@ -66,10 +66,10 @@ public class CardPaymentService {
 
     private String getPaymentUrl(String paymentId, boolean isQRCode){
         if(isQRCode){
-            return "http://localhost:4201/qrpayment/"+paymentId;
+            return "https://localhost:4201/qrpayment/"+paymentId;
         }
         else{
-            return "http://localhost:4201/payment/"+paymentId;
+            return "https://localhost:4201/payment/"+paymentId;
         }
 
     }
@@ -195,7 +195,7 @@ public class CardPaymentService {
         else return paymentUrls.getFailUrl();
     }
     public void sendResponseToPSP(PaymentExecutionResponse response){
-        String url = "http://localhost:8095/api/payment/order-status";
+        String url = "https://localhost:8095/api/payment/order-status";
         ResponseEntity<Object> r = restTemplate.postForEntity(url, response, Object.class);
     }
     public int getPaymentAmount(String paymentId){

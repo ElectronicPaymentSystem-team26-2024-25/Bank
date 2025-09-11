@@ -36,15 +36,15 @@ export class PaymentFormComponent {
     this.service.executePayment(this.paymentRequest).subscribe({
       next: (response) => {
         if(response.status === PaymentStatus.SUCCESS){
-            window.location.href = 'http://localhost:4200/success/'+response.merchantOrderId
+            window.location.href = 'https://localhost:4200/success/'+response.merchantOrderId
         }else if(response.status = PaymentStatus.ERROR){
-          window.location.href = 'http://localhost:4200/error/'+response.merchantOrderId
+          window.location.href = 'https://localhost:4200/error/'+response.merchantOrderId
         }else{
-          window.location.href = 'http://localhost:4200/fail/'+response.merchantOrderId
+          window.location.href = 'https://localhost:4200/fail/'+response.merchantOrderId
         }
       },
       error: (error) => {
-        window.location.href = 'http://localhost:4200/error/-1'
+        window.location.href = 'https://localhost:4200/error/-1'
       }
     });
   }

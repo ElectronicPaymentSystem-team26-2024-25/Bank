@@ -29,7 +29,7 @@ public class PCCService {
         }
         if(issuerBank.getBankId() == 0)
             return null;
-        String url = "http://localhost:"+issuerBank.getPort()+"/api/pcc-cardpayment/execute-at-issuer";
+        String url = "https://bank.local:"+issuerBank.getPort()+"/api/pcc-cardpayment/execute-at-issuer";
         ResponseEntity<PCCPaymentExecutionResponse> response = restTemplate.postForEntity(url, paymentRequest, PCCPaymentExecutionResponse.class);
         return response.getBody();
     }

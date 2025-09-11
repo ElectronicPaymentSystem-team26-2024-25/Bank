@@ -16,8 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MejnActivity : AppCompatActivity() {
     val retrofit = Retrofit.Builder()
-        //OVO MORAM MENJATI UVEK (IP adresu), bilo bi dobro kad bih mogao promeniti to
-        .baseUrl("http://192.168.100.6:8060/")
+        .baseUrl("https://localhost:8060/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -131,7 +130,7 @@ class MejnActivity : AppCompatActivity() {
                     }
                 } else {
                     println("Error: ${response.code()} - ${response.message()}")
-                    callResultActivity("Payment successful not finished successfully.\nAn error occurred.")
+                    callResultActivity("Payment not finished successfully.\nAn error occurred.")
                 }
             }
             override fun onFailure(call: Call<PaymentResponse>, t: Throwable) {

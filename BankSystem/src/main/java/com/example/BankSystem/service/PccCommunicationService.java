@@ -33,7 +33,7 @@ public class PccCommunicationService {
     CardPaymentService cardPaymentService;
 
     public PaymentExecutionResponse sendRequestToPCC(PaymentExecutionRequest paymentExecutionRequest){
-        String url = "http://localhost:9090/api/pcc/cardpayment";
+        String url = "https://localhost:9090/api/pcc/cardpayment";
         Payment payment = paymentRepository.getReferenceById(paymentExecutionRequest.getPaymentId());
         AcquirerOrder order = generateAcquirerOrder(payment);
         PCCPaymentExecutionRequest request = new PCCPaymentExecutionRequest(paymentExecutionRequest, order.getAcquirerOrderId(), order.getAcquirerTimestamp(), "Banka 1", order.getAmount(), payment.getMerchantOrderId());
