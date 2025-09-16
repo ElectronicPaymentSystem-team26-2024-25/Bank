@@ -5,6 +5,8 @@ import com.example.BankSystem.dto.PaymentExecutionResponse;
 import com.example.BankSystem.dto.QRPaymentRequest;
 import com.example.BankSystem.model.*;
 import com.example.BankSystem.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,7 @@ public class QRCodePaymentService {
     String bankName;
     @Value("${custom.property.bankId}")
     String bankId;
-
+    private static final Logger log = LoggerFactory.getLogger(QRCodePaymentService.class);
     public PaymentExecutionResponse savePayment(QRPaymentRequest paymentExecution){
         Payment payment = paymentRepository.getReferenceById(paymentExecution.getPaymentId());
         MerchantOrder merchantOrder = merchantOrderRepository.getReferenceById(payment.getMerchantOrderId());
@@ -44,6 +46,8 @@ public class QRCodePaymentService {
         payment.setIssuerBank(bankName);
         executePayment(paymentExecution.getMerchantAccountNumber(), paymentExecution.getCustomerAccountNumber(), payment.getAmount());
         payment.setStatus(PaymentStatus.SUCCESS);
+        log.info("Payment approved for account ending in {} for merchant {}",
+                paymentExecution.getCustomerAccountNumber().substring(paymentExecution.getCustomerAccountNumber().length() - 4), payment.getMerchantOrderId());
         paymentRepository.save(payment);
         return new PaymentExecutionResponse(merchantOrder.getMerchantOrderId(), acquirerOrder.getAcquirerOrderId(), acquirerOrder.getAcquirerTimestamp(),
                 paymentExecution.getPaymentId(), PaymentStatus.SUCCESS, "success url sa domenom PSP-a", ".");
@@ -82,7 +86,14 @@ public class QRCodePaymentService {
         Payment payment = paymentRepository.getReferenceById(paymentId);
         if(account == null)
             return false;
-        return account.getAvailableFunds() >= payment.getAmount();
+        if(account.getAvailableFunds() >= payment.getAmount()){
+            return true;
+        }
+        else{
+            log.warn("Payment failed because of insufficient funds for account ending with {}",
+                    accountNumber.substring(accountNumber.length() - 4));
+            return false;
+        }
     }
 
     public String getQRCodeText(String paymentId){

@@ -8,9 +8,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,6 +34,8 @@ public class CardPaymentService {
     String bankName;
     @Value("${custom.property.bankId}")
     String bankId;
+
+    private static final Logger log = LoggerFactory.getLogger(CardPaymentService.class);
     public CardPaymentRequestResponse getCardPaymentForm(CardPaymentRequest cardPaymentRequest, boolean isQRCode){
         if(isCardPaymentRequestValid(cardPaymentRequest)){
             saveMerchantOrder(cardPaymentRequest);
@@ -76,12 +79,17 @@ public class CardPaymentService {
 
     public boolean isCardDataValid(PaymentExecutionRequest paymentExecutionRequest){
         BankAccount account = getAccountByPAN(paymentExecutionRequest.getPAN());
-        if(account == null)
+        if(account == null){
+            log.warn("Payment failed because of non existing card number ending with {}",
+                    paymentExecutionRequest.getPAN().substring(paymentExecutionRequest.getPAN().length() - 4));
             return false;
+        }
         if(account.getSecurityCode() != paymentExecutionRequest.getSecurityCode() ||
             account.getExpirationDate().getYear() != paymentExecutionRequest.getExpirationDate().getYear() ||
             account.getExpirationDate().getMonthValue() != paymentExecutionRequest.getExpirationDate().getMonthValue() ||
             !account.getCardHolderName().equals(paymentExecutionRequest.getCardHolderName())){
+            log.warn("Payment failed because of invalid data filled in form for card ending with {}",
+                    paymentExecutionRequest.getPAN().substring(paymentExecutionRequest.getPAN().length() - 4));
             return false;
         }
         return true;
@@ -90,15 +98,31 @@ public class CardPaymentService {
     public boolean hasSufficientFunds(String PAN, String paymentId){
         BankAccount account = getAccountByPAN(PAN);
         Payment payment = paymentRepository.getReferenceById(paymentId);
-        if(account == null)
+        if(account == null){
             return false;
-        return account.getAvailableFunds() >= payment.getAmount();
+        }
+        if (account.getAvailableFunds() >= payment.getAmount()){
+            return true;
+        }
+        else
+        {
+            log.warn("Payment failed because of insufficient funds for card ending with {}",
+                    PAN.substring(PAN.length() - 4));
+            return false;
+        }
     }
     public boolean hasSufficientFundsAtIssuer(String PAN, int amount){
         BankAccount account = getAccountByPAN(PAN);
         if(account == null)
             return false;
-        return account.getAvailableFunds() >= amount;
+        if (account.getAvailableFunds() >= amount){
+            return true;
+        }
+        else {
+            log.warn("Payment failed because of insufficient funds for card ending with {}",
+                    PAN.substring(PAN.length() - 4));
+            return false;
+        }
     }
     public boolean isPaymentExecutable(String paymentId){
         Payment payment = paymentRepository.getReferenceById(paymentId);
@@ -129,6 +153,8 @@ public class CardPaymentService {
         executePayment(merchantOrder.getMerchantId(), paymentExecution.getPAN(), payment.getAmount());
         payment.setStatus(PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
+        log.info("Payment approved for card ending in {} for merchant {}",
+                paymentExecution.getPAN().substring(paymentExecution.getPAN().length() - 4), payment.getMerchantOrderId());
         return new PaymentExecutionResponse(merchantOrder.getMerchantOrderId(), acquirerOrder.getAcquirerOrderId(), acquirerOrder.getAcquirerTimestamp(),
                 paymentExecution.getPaymentId(), PaymentStatus.SUCCESS, "success url sa domenom PSP-a", ".");
     }
@@ -172,6 +198,8 @@ public class CardPaymentService {
         withdrawFunds(paymentExecution.getPAN(), payment.getAmount());
         payment.setStatus(PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
+        log.info("Payment approved for card ending in {} for merchant {}",
+                paymentExecution.getPAN().substring(paymentExecution.getPAN().length() - 4), payment.getMerchantOrderId());
         return new PCCPaymentExecutionResponse(paymentExecution.getAcquirerOrderId(), paymentExecution.getAcquirerOrderTimestamp(),
                 issuerOrder.getIssuerOrderId(), issuerOrder.getIssuerTimestamp(), payment.getStatus(), bankName, ".");
     }
