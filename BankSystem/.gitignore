@@ -5,6 +5,11 @@ target/
 !**/src/test/**/target/
 .env
 
+# Ignore mkcert-generated certs
+*.pem
+*.p12
+*.key
+
 ### STS ###
 .apt_generated
 .classpath

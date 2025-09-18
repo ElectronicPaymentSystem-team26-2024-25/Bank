@@ -153,7 +153,7 @@ public class CardPaymentService {
         executePayment(merchantOrder.getMerchantId(), paymentExecution.getPAN(), payment.getAmount());
         payment.setStatus(PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
-        log.info("Payment approved for card ending in {} for merchant {}",
+        log.info("Payment approved for card ending in {} for merchant order {}",
                 paymentExecution.getPAN().substring(paymentExecution.getPAN().length() - 4), payment.getMerchantOrderId());
         return new PaymentExecutionResponse(merchantOrder.getMerchantOrderId(), acquirerOrder.getAcquirerOrderId(), acquirerOrder.getAcquirerTimestamp(),
                 paymentExecution.getPaymentId(), PaymentStatus.SUCCESS, "success url sa domenom PSP-a", ".");
@@ -198,7 +198,7 @@ public class CardPaymentService {
         withdrawFunds(paymentExecution.getPAN(), payment.getAmount());
         payment.setStatus(PaymentStatus.SUCCESS);
         paymentRepository.save(payment);
-        log.info("Payment approved for card ending in {} for merchant {}",
+        log.info("Payment approved for card ending in {} for merchant order {}",
                 paymentExecution.getPAN().substring(paymentExecution.getPAN().length() - 4), payment.getMerchantOrderId());
         return new PCCPaymentExecutionResponse(paymentExecution.getAcquirerOrderId(), paymentExecution.getAcquirerOrderTimestamp(),
                 issuerOrder.getIssuerOrderId(), issuerOrder.getIssuerTimestamp(), payment.getStatus(), bankName, ".");

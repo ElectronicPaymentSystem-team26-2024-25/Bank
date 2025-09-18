@@ -1,6 +1,1 @@
-2025-09-16 21:58:20 INFO  [main] c.e.BankSystem.BankSystemApplication - Starting BankSystemApplication using Java 17.0.9 with PID 14792 (D:\My documents\SEPSA\Bank\BankSystem\target\classes started by Admin in D:\My documents\SEPSA\Bank\BankSystem)
-2025-09-16 21:58:20 DEBUG [main] c.e.BankSystem.BankSystemApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
-2025-09-16 21:58:20 INFO  [main] c.e.BankSystem.BankSystemApplication - The following 1 profile is active: "instance1"
-2025-09-16 21:58:51 INFO  [main] c.e.BankSystem.BankSystemApplication - Started BankSystemApplication in 31.899 seconds (process running for 34.26)
-2025-09-16 22:23:02 INFO  [https-jsse-nio-0.0.0.0-8060-exec-9] c.e.B.service.CardPaymentService - Payment approved for card ending in 1111 for merchant 146
-2025-09-16 22:23:55 WARN  [https-jsse-nio-0.0.0.0-8060-exec-7] c.e.B.service.CardPaymentService - Payment failed because of invalid data filled in form for card ending with 1111
+2025-09-18 21:59:49 INFO  [https-jsse-nio-0.0.0.0-8060-exec-7] c.e.B.service.CardPaymentService - Payment approved for card ending in 1111 for merchant 154

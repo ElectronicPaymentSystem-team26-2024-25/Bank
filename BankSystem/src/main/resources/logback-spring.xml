@@ -1,5 +1,6 @@
 <configuration scan="true">
 
+    <!-- Appender for application logs -->
     <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>./logs/bank-backend/app.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -11,6 +12,7 @@
         </encoder>
     </appender>
 
+    <!-- Appender for system logs -->
     <appender name="SYSTEM_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>./logs/bank-backend/system.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -22,10 +24,15 @@
         </encoder>
     </appender>
 
+    <!-- Turn off logs from BankSystemApplication -->
+    <logger name="com.example.BankSystem.BankSystemApplication" level="OFF" additivity="false" />
+
+    <!-- All logs from your package (except BankSystemApplication) go into APP_FILE -->
     <logger name="com.example.BankSystem" level="DEBUG" additivity="false">
         <appender-ref ref="APP_FILE"/>
     </logger>
 
+    <!-- System/framework logs -->
     <root level="INFO">
         <appender-ref ref="SYSTEM_FILE"/>
     </root>

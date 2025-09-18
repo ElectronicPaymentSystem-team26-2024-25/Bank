@@ -13,7 +13,7 @@ services:
     image: grafana/promtail:2.9.0
     volumes:
       - ./promtail-config.yml:/etc/promtail/config.yml
-      - ./logs:/app/logs:ro  # Read-only mount for security
+      - ./BankSystem/logs:/app/logs:ro  # Read-only mount for security
     command: -config.file=/etc/promtail/config.yml
     ports:
       - "9080:9080"  # Expose promtail metrics port
