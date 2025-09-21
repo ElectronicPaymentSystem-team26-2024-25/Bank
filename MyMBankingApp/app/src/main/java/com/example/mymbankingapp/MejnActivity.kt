@@ -16,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MejnActivity : AppCompatActivity() {
     val retrofit = Retrofit.Builder()
-        .baseUrl("https://localhost:8060/")
+        .baseUrl("https://127.0.0.1:8060/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -112,7 +112,7 @@ class MejnActivity : AppCompatActivity() {
         request.amount =  amount.toInt()
         request.customerAccountNumber = getString(R.string.user_account_number)
         binding.amountText.text = "Amount to pay: "+request.amount+" "+currency
-        binding.merchantName.text = "Merchant name: " +merchantName
+        binding.merchantAccount.text = "Recipient account number: " +request.merchantAccountNumber
         binding.paymentPurpose.text = "Payment purpose: "+paymentPurpose
     }
 

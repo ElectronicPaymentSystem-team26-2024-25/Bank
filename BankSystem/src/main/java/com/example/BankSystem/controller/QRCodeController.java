@@ -1,6 +1,7 @@
 package com.example.BankSystem.controller;
 
 import com.example.BankSystem.dto.*;
+import com.example.BankSystem.model.Payment;
 import com.example.BankSystem.model.PaymentStatus;
 import com.example.BankSystem.service.CardPaymentService;
 import com.example.BankSystem.service.QRCodeGenerator;
@@ -50,8 +51,13 @@ public class QRCodeController {
             return new ResponseEntity<>(new PaymentExecutionResponse(-1, -1, null, "-1", PaymentStatus.FAIL,
                     cardPaymentService.getPaymentUrl(PaymentStatus.FAIL, request.getPaymentId()), "Insufficient funds on account."),HttpStatus.OK);
         PaymentExecutionResponse response = qrCodePaymentService.savePayment(request);
-        //cardPaymentService.sendResponseToPSP(response); kako cu proslediti odgovor PSP-u pitanje je
+        cardPaymentService.sendResponseToPSP(response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping (path = "/payment-status/{paymentId}")
+    public ResponseEntity<PaymentStatusResponse> getPaymentStatus(@PathVariable String paymentId) {
+        PaymentStatusResponse response = qrCodePaymentService.getPaymentStatusResponse(paymentId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

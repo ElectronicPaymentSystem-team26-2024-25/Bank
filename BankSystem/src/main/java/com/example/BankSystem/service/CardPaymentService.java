@@ -4,6 +4,7 @@ import com.example.BankSystem.dto.*;
 import com.example.BankSystem.model.*;
 import com.example.BankSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,8 @@ public class CardPaymentService {
     @Autowired
     PaymentUrlsRepository paymentUrlsRepository;
     @Autowired
-    RestTemplate restTemplate;
+    @Qualifier("plainRestTemplate")
+    private RestTemplate plainRestTemplate;
     @Value("${custom.property.bankName}")
     String bankName;
     @Value("${custom.property.bankId}")
@@ -223,8 +225,8 @@ public class CardPaymentService {
         else return paymentUrls.getFailUrl();
     }
     public void sendResponseToPSP(PaymentExecutionResponse response){
-        String url = "https://localhost:8095/api/payment/order-status";
-        ResponseEntity<Object> r = restTemplate.postForEntity(url, response, Object.class);
+        String url = "https://localhost:8080/payment/order-status";
+        ResponseEntity<Object> r = plainRestTemplate.postForEntity(url, response, Object.class);
     }
     public int getPaymentAmount(String paymentId){
         return paymentRepository.getReferenceById(paymentId).getAmount();

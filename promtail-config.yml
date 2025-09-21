@@ -16,9 +16,20 @@ scrape_configs:
         labels:
           job: bank-backend
           app: bank-backend
-          __path__: /app/logs/bank-backend/app.log
+          __path__: /app/logs/bank/bank-backend/app.log
     pipeline_stages:
       - labels:
           level:
           logger:
-## more service logs can be added here
+  - job_name: psp-backend
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: psp-backend
+          app: psp-backend
+          __path__: /app/logs/psp/app.log
+    pipeline_stages:
+      - labels:
+          level:
+          logger:

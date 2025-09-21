@@ -5,7 +5,7 @@ import { environment } from '../env/env';
 import { Observable } from 'rxjs';
 import { BankPaymentResponse } from '../model/payment-response';
 import { QRCodeResponse } from '../model/qr-code-response';
-import { QRCodeRequest } from '../model/qr-code-request';
+import { PaymentStatusResponse } from '../model/payment-status-response';
 
 @Injectable({
   providedIn: 'root'
@@ -26,5 +26,8 @@ export class BankService {
   }
   getQrCode(paymentId: string): Observable<QRCodeResponse> {
    return this.http.get<QRCodeResponse>(environment.apiHost + 'qrcode/'+paymentId);
+  }
+  getPaymentStatus(paymentId: string): Observable<PaymentStatusResponse> {
+    return this.http.get<PaymentStatusResponse>(environment.apiHost + 'qrcode/payment-status/'+paymentId);
   }
 }

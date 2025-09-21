@@ -2,6 +2,7 @@ package com.example.BankSystem.service;
 
 import com.example.BankSystem.dto.PaymentExecutionRequest;
 import com.example.BankSystem.dto.PaymentExecutionResponse;
+import com.example.BankSystem.dto.PaymentStatusResponse;
 import com.example.BankSystem.dto.QRPaymentRequest;
 import com.example.BankSystem.model.*;
 import com.example.BankSystem.repository.*;
@@ -104,6 +105,11 @@ public class QRCodePaymentService {
         String qrText = "K:PR|V:01|C:"+paymentId+"|R:"+account.getAccountNumber()+"|N:Prodavac usluge|I:EU;"+payment.getAmount()+
                 "|P:TELEKOM|SF:123|S:Kupovanje usluge|RO:"+mOrder.getMerchantId();
         return qrText;
+    }
+
+    public PaymentStatusResponse getPaymentStatusResponse(String paymentId){
+        Payment payment = paymentRepository.getReferenceById(paymentId);
+        return new PaymentStatusResponse(payment.getStatus(), payment.getPaymentId(), payment.getMerchantOrderId());
     }
 
     private BankAccount getAccountByAccountNumber(String accountNumber){
