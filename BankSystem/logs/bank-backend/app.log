@@ -1,3 +1,4 @@
 2025-09-21 11:33:31 INFO  [https-jsse-nio-0.0.0.0-8060-exec-8] c.e.B.service.CardPaymentService - Payment approved for card ending in 1111 for merchant order 167
 2025-09-21 12:32:50 INFO  [https-jsse-nio-0.0.0.0-8060-exec-10] c.e.B.service.QRCodePaymentService - Payment approved for account ending in 1234 for merchant 172
 2025-09-21 13:33:35 INFO  [https-jsse-nio-0.0.0.0-8060-exec-3] c.e.B.service.QRCodePaymentService - Payment approved for account ending in 1234 for merchant 175
+2025-09-21 21:06:53 INFO  [https-jsse-nio-0.0.0.0-8060-exec-6] c.e.B.service.CardPaymentService - Payment approved for card ending in 1111 for merchant order 194

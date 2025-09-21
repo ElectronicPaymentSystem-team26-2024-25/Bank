@@ -10,6 +10,7 @@ import com.example.BankSystem.repository.BankAccountRepository;
 import com.example.BankSystem.repository.MerchantOrderRepository;
 import com.example.BankSystem.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,8 @@ public class PccCommunicationService {
     @Autowired
     MerchantOrderRepository merchantOrderRepository;
     @Autowired
-    RestTemplate restTemplate;
+    @Qualifier("plainRestTemplate")
+    private RestTemplate plainRestTemplate;
     @Autowired
     CardPaymentService cardPaymentService;
 
@@ -37,7 +39,7 @@ public class PccCommunicationService {
         Payment payment = paymentRepository.getReferenceById(paymentExecutionRequest.getPaymentId());
         AcquirerOrder order = generateAcquirerOrder(payment);
         PCCPaymentExecutionRequest request = new PCCPaymentExecutionRequest(paymentExecutionRequest, order.getAcquirerOrderId(), order.getAcquirerTimestamp(), "Banka 1", order.getAmount(), payment.getMerchantOrderId());
-        ResponseEntity<PCCPaymentExecutionResponse> response = restTemplate.postForEntity(url, request, PCCPaymentExecutionResponse.class);
+        ResponseEntity<PCCPaymentExecutionResponse> response = plainRestTemplate.postForEntity(url, request, PCCPaymentExecutionResponse.class);
         if(response.getStatusCode() == HttpStatusCode.valueOf(400))
             return null;
         PCCPaymentExecutionResponse responseBody = response.getBody();
