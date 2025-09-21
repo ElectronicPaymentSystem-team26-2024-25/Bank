@@ -1,0 +1,19 @@
+# Dockerfile.spring (generic)
+ARG BASE_IMAGE=bellsoft/liberica-openjdk-alpine:17
+FROM ${BASE_IMAGE} AS runtime
+
+# create app directory
+WORKDIR /app
+
+# Copy jar (build outside with mvn/gradle) - adjust path/name as needed
+COPY build/libs/*.jar app.jar
+
+# copy certificates (optional): if your Spring app needs TLS server cert or truststore,
+# mount them with docker-compose into /etc/ssl/private and reference via env.
+# e.g. - ./certs:/etc/ssl/private in compose; then reference files via env vars.
+
+# Expose port defined via env SERVER_PORT
+ARG PORT=8080
+EXPOSE ${PORT}
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
